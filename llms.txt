@@ -1,6 +1,6 @@
 # Miragea AI 配音与字幕技能合集 (miragea-voiceover-skills)
 
-> 7 个 Agent Skills（SKILL.md 格式）：AI配音、口播配音、电影解说配音、文字转语音、声音克隆、字幕生成、小说推文配音。文字稿逐句调用 Miragea 官方客户端生成配音，本地拼成整段 WAV，并输出带时间轴的 SRT 字幕和逐句 manifest.json；音色用账号已有角色或参考音频声音克隆；已有音视频可识别为 SRT / TXT / JSON。本地只需 Python 3.9+ 标准库、无需显卡；单句字数、限额和计费以 capabilities 实时返回为准。服务：Miragea 开放 API（https://miragea.ai/v1）。
+> 9 个 Agent Skills（SKILL.md 格式）：AI配音、口播配音、电影解说配音、文字转语音、声音克隆、字幕生成、小说推文配音、PPT配音、AI播客。文字稿逐句调用 Miragea 官方客户端生成配音，本地拼成整段 WAV，并输出带时间轴的 SRT 字幕和逐句 manifest.json；音色用账号已有角色或参考音频声音克隆；已有音视频可识别为 SRT / TXT / JSON。本地只需 Python 3.9+ 标准库、无需显卡；单句字数、限额和计费以 capabilities 实时返回为准。服务：Miragea 开放 API（https://miragea.ai/v1）。
 
 AI voiceover & subtitle skills for agents: script in, multi-voice voiceover WAV + timed SRT + per-line timing JSON out, via the official Miragea client (generate / recognize). Saved voices or voice cloning from a reference clip; speech-to-subtitles for existing media. No GPU.
 
@@ -13,6 +13,8 @@ AI voiceover & subtitle skills for agents: script in, multi-voice voiceover WAV 
 - [声音克隆](skills/voice-cloning-voiceover/SKILL.md): 声音克隆：用一段本人参考音频和对应文本克隆声音，直接给文案配音，或用账号里已复刻的角色；单句试听、整稿克隆声音配音并输出SRT字幕，适合口播、解说、课程，须本人授权，本地无需显卡。 (Voice Cloning Voiceover · Clone Your Voice)
 - [字幕生成](skills/ai-subtitle-generator/SKILL.md): 字幕生成：上传本地视频或音频，自动识别生成带时间轴的SRT字幕，也可导出TXT文字稿或JSON；视频自动加字幕、音频转字幕、音频转文字都能用，配音稿还能同步出字幕，本地无需显卡。 (AI Subtitle Generator · Audio/Video to SRT)
 - [小说推文配音](skills/novel-video-voiceover/SKILL.md): 小说推文配音：小说推文视频的旁白和角色台词各用不同音色，一键生成整段AI配音WAV和带角色名的SRT字幕；也能做有声书配音、多角色配音和故事号，支持声音克隆，本地无需显卡。 (Novel Video & Audiobook Multi-Voice Voiceover)
+- [PPT配音](skills/ppt-voiceover-narration/SKILL.md): PPT配音：把PPT或课件每一页的讲稿一次配好音，逐页生成配音和SRT字幕，自动拼成整段旁白，并给出每页时长和幻灯片视频拼接清单，适合微课、培训课件、产品演示等场景，本地无需显卡。 (PPT Voiceover · Slide Narration with Subtitles)
+- [AI播客](skills/ai-podcast-voiceover/SKILL.md): AI播客：把文章、笔记或对谈稿做成单人或双人播客音频，逐句配音拼成整期节目，同时输出SRT字幕、带时间戳的章节列表和节目文字稿，适合知识分享、公众号音频版和品牌播客，本地无需显卡。 (AI Podcast · Solo or Two-Host Episode Voiceover)
 
 ## 共同用法
 

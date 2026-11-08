@@ -17,6 +17,8 @@ Script in, multi-voice voiceover WAV + timed SRT subtitles + per-line timing JSO
 | [声音克隆｜克隆声音·声音复刻·AI配音](https://github.com/yanghhu/miragea-voiceover-skills/tree/main/skills/voice-cloning-voiceover) | Voice Cloning Voiceover · Clone Your Voice | 用本人参考音频克隆声音配音（须本人授权） · Voiceover in your own cloned voice (consent required) | `skills/voice-cloning-voiceover` |
 | [字幕生成｜视频自动加字幕·音频转字幕·SRT](https://github.com/yanghhu/miragea-voiceover-skills/tree/main/skills/ai-subtitle-generator) | AI Subtitle Generator · Audio/Video to SRT | 视频自动加字幕、音频转字幕/文字 · Auto subtitles & transcripts from video/audio | `skills/ai-subtitle-generator` |
 | [小说推文配音｜有声书配音·多角色配音·字幕](https://github.com/yanghhu/miragea-voiceover-skills/tree/main/skills/novel-video-voiceover) | Novel Video & Audiobook Multi-Voice Voiceover | 小说推文、有声书、多角色朗读 · Novel videos, audiobooks, multi-voice reading | `skills/novel-video-voiceover` |
+| [PPT配音｜课件配音·PPT转视频·AI旁白](https://github.com/yanghhu/miragea-voiceover-skills/tree/main/skills/ppt-voiceover-narration) | PPT Voiceover · Slide Narration with Subtitles | 课件/PPT逐页配音、整段旁白、每页时长、幻灯片视频 · Per-slide narration, timings, slideshow video | `skills/ppt-voiceover-narration` |
+| [AI播客｜播客配音·双人对谈·节目章节](https://github.com/yanghhu/miragea-voiceover-skills/tree/main/skills/ai-podcast-voiceover) | AI Podcast · Solo or Two-Host Episode Voiceover | 文章转播客、双人对谈、章节时间轴和文字稿 · Article-to-podcast, two hosts, chapters & transcript | `skills/ai-podcast-voiceover` |
 
 每个技能文件夹都包含 `SKILL.md`（完整用法、写稿方法、FAQ）、`README.md`、`examples/` 示例稿和 `scripts/`（`voiceover.py` 拼接层 + `miragea_audio.py` 官方客户端）。
 
