@@ -1,26 +1,27 @@
-# Miragea AI 视频配音技能合集 (miragea-voiceover-skills)
+# Miragea AI 配音与字幕技能合集 (miragea-voiceover-skills)
 
-> 7 个原创 Agent Skills（SKILL.md 格式）：把文字稿一键生成多角色 AI 配音（WAV）、带时间轴的 SRT 字幕和逐句时间轴 manifest.json。支持 5–10 秒声音克隆、中英日韩德法俄葡西意 10 种语言、音频转字幕；本地只需 Python 3.9+ 标准库，无需显卡；适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。配音与字幕能力由 Miragea API（https://miragea.ai）提供。安装：npx skills add yanghhu/miragea-voiceover-skills
+> 7 个 Agent Skills（SKILL.md 格式）：AI配音、口播配音、电影解说配音、文字转语音、声音克隆、字幕生成、小说推文配音。文字稿逐句调用 Miragea 官方客户端生成配音，本地拼成整段 WAV，并输出带时间轴的 SRT 字幕和逐句 manifest.json；音色用账号已有角色或参考音频声音克隆；已有音视频可识别为 SRT / TXT / JSON。本地只需 Python 3.9+ 标准库、无需显卡；单句字数、限额和计费以 capabilities 实时返回为准。服务：Miragea 开放 API（https://miragea.ai/v1）。
 
-AI video voiceover skills for agents: script in, multi-voice voiceover WAV + timed SRT subtitles + per-line timing JSON out. Voice cloning from 5–10 s, 10 languages, no GPU, MIT license.
+AI voiceover & subtitle skills for agents: script in, multi-voice voiceover WAV + timed SRT + per-line timing JSON out, via the official Miragea client (generate / recognize). Saved voices or voice cloning from a reference clip; speech-to-subtitles for existing media. No GPU.
 
 ## Skills
 
-- [视频配音神器](skills/miragea-video-voiceover/SKILL.md): 视频配音神器：口播稿、电影解说稿、广告脚本、带货文案、数字人台词一键生成多角色AI配音WAV和带时间轴SRT字幕，5–10秒声音克隆，支持10种语言，本地无需显卡。 (AI Video Voiceover & Subtitles)
-- [口播配音神器](skills/koubo-ai-voiceover/SKILL.md): 口播配音神器：用自己5–10秒声音克隆口播音色，口播稿一键生成AI配音WAV和竖屏SRT字幕，改一句只重配一句。适合抖音、视频号、小红书、B站知识/财经/情感口播博主，支持10种语言，无需显卡。 (Talking-Head AI Voiceover & Subtitles)
-- [电影解说配音](skills/movie-recap-ai-voiceover/SKILL.md): 电影解说配音：解说旁白加多个角色台词各用不同音色，一条命令生成整段AI配音WAV、SRT字幕和逐句时间轴，方便剪映对画面。适合电影、电视剧、短剧解说号，支持声音克隆和10种语言。 (Movie Recap AI Voiceover & Subtitles)
-- [带货视频配音](skills/daihuo-ai-voiceover/SKILL.md): 带货视频配音：卖点文案逐行生成快节奏AI配音WAV和大字竖屏SRT字幕，同一商品可快速出多个版本测试。适合抖音、快手、视频号、小红书、TikTok带货短视频，支持声音克隆和10种语言出海。 (E-commerce Product Video AI Voiceover)
-- [数字人配音](skills/shuziren-ai-voiceover/SKILL.md): 数字人配音：用本人5–10秒声音克隆音色，口播稿一键生成干净人声驱动音频WAV、SRT字幕和逐句时间轴JSON，可导入各类数字人、虚拟主播、AI分身工具驱动口型。支持10种语言，本地无需显卡。 (Digital Human / AI Avatar Voiceover)
-- [广告片配音](skills/guanggao-ai-voiceover/SKILL.md): 广告片配音：品牌广告、企业宣传片、产品介绍和App演示视频的旁白与对白一键生成AI配音WAV和SRT字幕，停顿语速可精细控制，同一品牌声音可出中英日韩等10种语言版本，本地无需显卡。 (Ad Film & Promo Video AI Voiceover)
-- [有声书配音](skills/youshengshu-ai-voiceover/SKILL.md): 有声书配音：小说、故事、广播剧一键多角色AI朗读，旁白和每个角色分配不同音色，按段落停顿，输出整章配音WAV、带角色名的SRT字幕和时间轴。适合有声书、故事号、小说推文视频，支持声音克隆和10种语言。 (Audiobook & Audio Drama AI Voiceover)
+- [AI配音](skills/miragea-video-voiceover/SKILL.md): AI配音技能：口播稿、解说稿、小说推文、广告脚本一键生成多角色视频配音WAV和带时间轴SRT字幕；用参考音频做声音克隆或用账号已有角色，已有音视频也能字幕生成，本地无需显卡。 (AI Voiceover for Videos · Voice Cloning · Subtitles)
+- [口播配音](skills/koubo-ai-voiceover/SKILL.md): 口播配音：用你自己的参考音频声音克隆口播音色，口播稿一键生成AI配音WAV和竖屏SRT字幕，改一句只重配一句；适合抖音、视频号、小红书知识/财经/情感口播视频，本地无需显卡。 (Talking-Head Voiceover · Voice Cloning · Subtitles)
+- [电影解说配音](skills/movie-recap-ai-voiceover/SKILL.md): 电影解说配音：解说旁白和角色台词分别用不同音色，一条命令生成整段AI配音WAV、SRT字幕和逐句时间轴，方便剪映对画面；适合电影、短剧解说、影视解说号，支持声音克隆，本地无需显卡。 (Movie Recap Voiceover · Multi-Voice · Subtitles)
+- [文字转语音](skills/text-to-speech-voiceover/SKILL.md): 文字转语音：把一段文字或整篇文稿转成语音（mp3、wav等），可选账号音色或参考音频声音克隆、语气标签和0.25–4倍语速；长稿自动分句拼接并输出SRT字幕，文本转语音本地无需显卡。 (Text to Speech (TTS) · Speech Synthesis)
+- [声音克隆](skills/voice-cloning-voiceover/SKILL.md): 声音克隆：用一段本人参考音频和对应文本克隆声音，直接给文案配音，或用账号里已复刻的角色；单句试听、整稿克隆声音配音并输出SRT字幕，适合口播、解说、课程，须本人授权，本地无需显卡。 (Voice Cloning Voiceover · Clone Your Voice)
+- [字幕生成](skills/ai-subtitle-generator/SKILL.md): 字幕生成：上传本地视频或音频，自动识别生成带时间轴的SRT字幕，也可导出TXT文字稿或JSON；视频自动加字幕、音频转字幕、音频转文字都能用，配音稿还能同步出字幕，本地无需显卡。 (AI Subtitle Generator · Audio/Video to SRT)
+- [小说推文配音](skills/novel-video-voiceover/SKILL.md): 小说推文配音：小说推文视频的旁白和角色台词各用不同音色，一键生成整段AI配音WAV和带角色名的SRT字幕；也能做有声书配音、多角色配音和故事号，支持声音克隆，本地无需显卡。 (Novel Video & Audiobook Multi-Voice Voiceover)
 
-## 共同参数
+## 共同用法
 
-- 命令：doctor、voices、say、script、subtitles；script 参数：--preset（koubo/jieshuo/daihuo/shuziren/guanggao/youshengshu）、--gap、--max-chars、--speaker-labels、--dry-run、--fresh、-o
-- 稿件：Markdown，front matter 定义角色音色（actor_id= 或 ref=），正文 [角色] 台词，[pause 秒] 停顿，speed= 0.25–4，language= zh/en/ja/ko/de/fr/ru/pt/es/it
-- 输出：voiceover.wav、voiceover.srt、manifest.json
-- 依赖：Python 3.9+ 标准库；环境变量 MIRAGEA_API_KEY；--dry-run 可离线试跑
+- 官方客户端 scripts/miragea_audio.py：capabilities、actors、generate（--text/--text-file，--actor-id 或 --reference-audio-url + --reference-text，--model expressive|standard，--tag，--speed，--format，--wait，--output）、recognize（--file，--subtitle-format srt|txt|json）、task、wait
+- 稿件拼接层 scripts/voiceover.py：check（离线）、script（--preset koubo/jieshuo/daihuo/shuziren/guanggao/youshengshu、--gap、--max-chars、--speaker-labels、--model、--fresh、--dry-run、-o）
+- 稿件：Markdown，front matter 定义角色（actor_id= 或 ref= + ref_text=，可加 speed=、model=、tags=、language=），正文 [角色] 台词，[pause 秒] 停顿
+- 输出：voiceover.wav、voiceover.srt、manifest.json、lines/（每句缓存）
+- 环境变量：MIRAGEA_API_KEY（https://miragea.ai/workspace/api 生成），可选 MIRAGEA_BASE_URL（默认 https://miragea.ai/v1）
 
 ## Optional
 
-- [Miragea](https://miragea.ai): 配音、声音克隆与音频转字幕服务，提供网页和 API，可接入 AI Agent
+- [Miragea API guide](https://miragea.ai/v1/guide): 公开接口说明（能力发现、音频生成、字幕识别、任务与幂等）

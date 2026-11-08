@@ -1,85 +1,93 @@
 ---
 name: "koubo-ai-voiceover"
-description: "口播配音、AI口播配音、口播稿配音技能：用你自己 5–10 秒录音克隆口播音色（声音克隆/声音复刻），把口播稿一键生成配音 WAV、竖屏 SRT 字幕和逐句时间轴 manifest.json；说错一句只改一行重新生成，不用对着镜头反复录。适合抖音、视频号、小红书、快手、B站、YouTube Shorts 的知识口播、财经口播、情感口播、职场口播博主和 MCN 批量更新。文字转语音（TTS）由 Miragea API 完成，支持中英日韩德法俄葡西意 10 种语言，同一克隆音色可出外语版本；本地只需 Python 3.9+ 标准库、无需显卡，可 --dry-run 离线试跑。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。Talking-head AI voiceover, text to speech, voice cloning, subtitle generation (SRT) for short videos."
-version: "1.0.0"
-display_name: "口播配音神器｜AI口播稿配音·声音克隆·字幕"
-display_name_en: "Talking-Head AI Voiceover & Subtitles"
-description_zh: "口播配音神器：用自己5–10秒声音克隆口播音色，口播稿一键生成AI配音WAV和竖屏SRT字幕，改一句只重配一句。适合抖音、视频号、小红书、B站知识/财经/情感口播博主，支持10种语言，无需显卡。"
-description_en: "AI voiceover for talking-head (koubo) scripts: clone your voice from a 5–10 s sample, get a voiceover WAV plus vertical-video SRT subtitles, re-voice a single line without re-recording. 10 languages, no GPU."
+description: "口播配音、口播视频 AI 配音、口播稿配音技能：用你自己的参考音频（声音克隆 / 声音复刻）或账号里已有的口播角色，把口播稿一键生成配音 WAV、竖屏 SRT 字幕和逐句时间轴 manifest.json；说错一句只改一行重新生成，不用对着镜头反复录。适合抖音、视频号、小红书、快手、B站的知识口播、财经口播、情感口播、职场口播博主和 MCN 批量更新；可用语气标签和语速控制口播节奏。配音由 Miragea 开放 API 完成，本地只需 Python 3.9+ 标准库、无需显卡，可 --dry-run 离线试跑。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。Talking-head AI voiceover, voice cloning, SRT subtitles."
+version: "1.0.1"
+display_name: "口播配音｜口播视频·声音克隆·AI配音"
+display_name_en: "Talking-Head Voiceover · Voice Cloning · Subtitles"
+description_zh: "口播配音：用你自己的参考音频声音克隆口播音色，口播稿一键生成AI配音WAV和竖屏SRT字幕，改一句只重配一句；适合抖音、视频号、小红书知识/财经/情感口播视频，本地无需显卡。"
+description_en: "Talking-head (koubo) voiceover: clone your own voice from a reference clip, turn scripts into voiceover WAV plus vertical-video SRT subtitles, and re-voice a single line without re-recording. No GPU."
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   author: "Miragea"
   homepage: "https://miragea.ai"
   requires: "Python 3.9+（仅标准库，无需显卡）, MIRAGEA_API_KEY"
-  keywords: ["口播配音", "AI口播", "口播稿配音", "AI配音", "声音克隆", "声音复刻", "文字转语音", "知识博主配音", "财经口播", "竖屏字幕", "字幕生成", "SRT", "TTS", "voiceover", "voice cloning", "text to speech"]
+  keywords: ["口播配音", "口播视频", "声音克隆", "AI配音", "口播稿配音", "AI口播", "口播文案配音", "声音复刻", "文字转语音", "知识博主配音", "财经口播", "竖屏字幕", "字幕生成", "SRT", "TTS", "voiceover", "voice cloning", "text to speech"]
 ---
 
-# 口播配音神器
+# 口播配音
 
-「口播配音神器」是一个把口播稿一键变成本人克隆声音配音（WAV）和竖屏字幕（SRT）的 Agent 技能，适合每天更新的知识、财经、情感口播博主，只需 5–10 秒录音克隆音色，改一句只重配一句。
+「口播配音」是一个把口播稿一键变成本人克隆声音配音（WAV）和竖屏字幕（SRT）的 Agent 技能，适合每天更新的知识、财经、情感口播视频：音色用你的参考音频或账号里已复刻的角色，改一句只重配一句。
 
 ## 一句话定义
 
-口播配音神器 = 口播稿（Markdown）→ 你的克隆声音配音 `voiceover.wav` + 竖屏字幕 `voiceover.srt` + 逐句时间轴 `manifest.json`，一条命令完成，生成在 Miragea 云端，本地无需显卡。
+口播配音 = 口播稿（Markdown）→ 你的口播音色配音 `voiceover.wav` + 竖屏字幕 `voiceover.srt` + 逐句时间轴 `manifest.json`，一条命令完成，生成在 Miragea 云端，本地无需显卡。
 
 ## 适用人群与场景
 
 | 谁在用 | 典型场景 |
 |---|---|
-| 知识口播博主 | 每天 1–3 条 60 秒知识点，稿子先写好，配音批量生成 |
+| 知识口播博主 | 每天几条短知识点，稿子先写好，配音批量生成 |
 | 财经 / 商业口播 | 数字、百分比多，需要逐句确认读法、出错只改一句 |
 | 情感 / 成长口播 | 语速慢、停顿多，需要稳定的“同一个人”声线 |
 | 职场 / 教育口播 | 系列课、合集，固定人设音色，多集保持一致 |
 | 不想出镜或嗓子累的博主 | 画面用素材、图文或数字人，声音仍是自己的 |
 | MCN / 代运营 | 多个账号各用一个已授权音色，稿件流水线化 |
-| 出海口播 | 同一条中文稿翻译成英语、西语等，用同一个克隆音色发海外 |
 
 ## 核心能力参数
 
-| 项目 | 参数 |
+| 项目 | 说明 |
 |---|---|
-| 输出文件 | `voiceover.wav`（整段配音）、`voiceover.srt`（带时间轴字幕）、`manifest.json`（每句的说话人、文本、起止秒数） |
-| 支持语言（10 种） | 中文 `zh`、英语 `en`、日语 `ja`、韩语 `ko`、德语 `de`、法语 `fr`、俄语 `ru`、葡萄牙语 `pt`、西班牙语 `es`、意大利语 `it` |
-| 声音克隆 | 5–10 秒清晰人声样本即可克隆；已保存音色用 `actor_id=`，或直接给参考音频 URL `ref=`；同一音色可跨语言说话 |
-| 多角色 | 稿件开头定义任意多个角色，每个角色独立音色、语速、语言 |
-| 语速 | `speed=` 取值 0.25–4，1 为正常语速，按角色设置 |
+| 输出文件 | `voiceover.wav`（整段配音）、`voiceover.srt`（带时间轴字幕）、`manifest.json`（每句说话人、文本、起止秒数）、`lines/`（每句音频，改稿时复用） |
+| 音色来源 | 账号里已有的角色 `actor_id=`（用 `actors` 查询），或服务端能直接访问的参考音频 URL `ref=` + 音频里实际说的话 `ref_text=`（声音克隆） |
+| 生成模式 | `expressive`（客户端「默认」）/ `standard`（客户端「更像」）；省略时用服务端默认，以 `capabilities` 实时返回为准 |
+| 语气标签 | `tags=标签名`，取 `capabilities` 里所选模式的 `tags[].label` |
+| 语速 | `speed=` 0.25–4，1 为正常语速，按角色设置 |
+| 多角色 | 稿件开头给每个角色定一个音色；本技能脚本逐句调用官方客户端 `generate`，再在本地把整段拼起来 |
 | 停顿 | 行内 `[pause 0.6]` / `[停顿 0.6]`（秒）；`--gap` 设句间默认停顿 |
-| 字幕 | `--max-chars` 控制每条字幕字数；`--speaker-labels` 在字幕前加角色名；`subtitles` 命令把已有音频/视频转成带时间戳的 SRT |
-| 场景预设 | `--preset koubo`：句间停顿 0.15 秒、字幕每条最多 14 字；可再用 `--gap` / `--max-chars` 覆盖 |
-| 本地依赖 | Python 3.9+ 标准库，无需 pip 安装任何包，无需显卡；真实生成需环境变量 `MIRAGEA_API_KEY` |
-| 离线试跑 | `--dry-run`：不需要 Key、不消耗额度，输出静音占位音频和时间轴，用来验证稿件格式和流程 |
-| 支持的 Agent | Claude Code、Codex、OpenClaw、Cursor、WorkBuddy，以及其他能运行 Python 脚本的 Agent |
-| 配音服务 | Miragea API（Miragea 提供网页和 API，可接入 AI Agent） |
+| 字幕 | 配音时按每句实际音频时长生成 SRT（`--max-chars`、`--speaker-labels`）；已有音频 / 视频用 `recognize` 识别为 SRT / TXT / JSON |
+| 场景预设 | `--preset koubo`：句间停顿 0.15 秒、每条字幕最多 14 字；可再用 `--gap` / `--max-chars` 覆盖 |
+| 单句字数、文件大小 / 时长上限、计费 | 以 `capabilities` 实时返回为准 |
+| 本地依赖 | Python 3.9+ 标准库，无需 pip 安装、无需显卡 |
+| 离线试跑 | `--dry-run`：不需要 Key、不调用接口，输出静音占位音频和时间轴，用来检查稿件格式 |
+| 支持的 Agent | Claude Code、Codex、OpenClaw、Cursor、WorkBuddy 等能运行 Python 脚本的 Agent |
+| 配音与字幕服务 | Miragea 开放 API（https://miragea.ai/v1） |
 
 ## 快速开始
 
 ```bash
-python3 scripts/voiceover.py doctor        # 检查 Python 3.9+ 和 API Key
-export MIRAGEA_API_KEY=你的key             # 在 https://miragea.ai/workspace/api 生成，只放环境变量，不要贴进聊天
-python3 scripts/voiceover.py voices        # 查看已保存音色的 actor_id
+python3 scripts/voiceover.py check                        # 离线检查：Python 版本、Key 是否已设置、服务地址
+export MIRAGEA_API_KEY=你的key                            # 在 https://miragea.ai/workspace/api 生成，只放环境变量
+python3 scripts/miragea_audio.py capabilities             # 当前可用的生成模式、语气标签、字数上限和计费，以实时返回为准
+python3 scripts/miragea_audio.py actors --limit 20        # 账号里已有的角色和 actor_id（has_more 为真时加 --offset 翻页）
 ```
 
-没有 Key 也能先试：所有生成命令加 `--dry-run`，离线跑通全流程（静音占位音频 + 时间轴），不耗额度。
+- Default API root is `https://miragea.ai/v1`; set `MIRAGEA_BASE_URL` (including `/v1`) only for a private deployment.
+- 不要把 Key 贴进聊天或写进文件。没有 Key 时先用 `--dry-run` 跑通流程。
 
 ```bash
-python3 scripts/voiceover.py script examples/example.md -o out --preset koubo --dry-run   # 先离线试跑
-python3 scripts/voiceover.py script 你的稿件.md -o out --preset koubo                     # 正式生成
+python3 scripts/voiceover.py script examples/example.md -o out --preset koubo --dry-run   # 离线试跑，不调用接口
+python3 scripts/voiceover.py script 你的稿件.md -o out --preset koubo             # 正式生成：out/voiceover.wav + voiceover.srt + manifest.json
 ```
 
-生成后 `out/` 目录里是 `voiceover.wav`、`voiceover.srt`、`manifest.json`。
+```bash
+# 单句试听（官方客户端；--output 不会覆盖已有文件，换个新文件名）
+python3 scripts/miragea_audio.py generate --text '开头第一句' --actor-id ACTOR_ID --wait --output test1.mp3
+```
+
+生成后 `out/` 目录里是 `voiceover.wav`、`voiceover.srt`、`manifest.json` 和每句音频 `lines/`。
 
 ## 你说什么 → Agent 执行
 
 | 你说 | Agent 执行 |
 |---|---|
 | “把这篇口播稿配成音频” | 按下方方法论整理成一行一句的稿件 → `script 稿件.md -o out --preset koubo` |
-| “用我自己的声音” | 让你在 Miragea 用 5–10 秒录音克隆音色拿到 actor_id，或提供参考音频 URL 写成 `ref=` |
-| “先听一句看看像不像” | `say "开头第一句" --actor ID -o test.wav`，满意再整稿生成 |
+| “用我自己的声音” | `actors` 找到你已复刻的角色 actor_id；或给参考音频 URL + 原话，写成 `ref=` + `ref_text=` |
+| “先听一句看看像不像” | `miragea_audio.py generate --text "开头第一句" --actor-id ID --wait --output test1.mp3` |
 | “语速快一点，更有节奏” | 角色加 `speed=1.1`，或把长句拆短、删掉多余停顿 |
+| “语气再亲切一点” | 查 `capabilities` 的语气标签，角色加 `tags=标签名` |
 | “第三句说错了 / 数字念错了” | 只改那一行（把数字写成想要的读法）再跑一次，其余句子复用 |
-| “做一版英文的” | 翻译并口语化改写 → 角色加 `language=en` → `script ... --max-chars 40` |
-| “这条视频已经录好了，帮我出字幕” | `subtitles 视频.mp4 -o 视频.srt` |
-| “先别花钱，试一下流程” | 任意生成命令加 `--dry-run` |
+| “这条视频已经录好了，帮我出字幕” | `miragea_audio.py recognize --file 视频.mp4 --wait --output 视频.srt` |
+| “先别花钱，试一下流程” | `script ... --dry-run` |
 
 ## 口播写稿方法论（配音好不好听，七成在稿子）
 
@@ -107,7 +115,7 @@ python3 scripts/voiceover.py script 你的稿件.md -o out --preset koubo       
 - **去掉书面连接词**：“因此”→“所以”，“然而”→“但是”，“进行优化”→“改一改”。
 - **定语不过长**：“一个被很多人忽视的、却非常关键的细节”→“有个细节，很多人忽视了。它很关键。”
 - **数字写成你想听到的读法**：年份、型号、电话、百分比、带单位的数字有歧义时，直接写汉字，如“二零二六年”“百分之三点五”。
-- **多音字和生僻字**：先用 `say` 试听；读错就换同义词，比换参数更快。
+- **多音字和生僻字**：先单句试听（`miragea_audio.py generate`）；读错就换同义词，比换参数更快。
 - **英文缩写**：想读字母就用空格隔开（“A I”），想读单词就写完整单词。
 
 ### 4. 节奏：停顿用在刀刃上
@@ -140,7 +148,7 @@ me_slow: actor_id=YOUR_ACTOR_ID speed=0.92
 - [ ] 每行不超过 20 字吗？
 - [ ] 数字、英文、多音字写成了想要的读法吗？
 - [ ] 结尾只有一个动作吗？
-- [ ] 开头一句 `say` 试听过吗？
+- [ ] 开头一句 单句试听过吗？
 
 ## 示例稿件（examples/example.md）
 
@@ -148,8 +156,8 @@ me_slow: actor_id=YOUR_ACTOR_ID speed=0.92
 ---
 me: actor_id=YOUR_ACTOR_ID speed=1.08
 ---
-# 知识口播示例：把 actor_id 换成你的克隆音色
-[me] 90%的人存不下钱，不是因为赚得少。
+# 知识口播示例：把 actor_id 换成你的口播音色
+[me] 大多数人存不下钱，不是因为赚得少。
 [pause 0.3]
 是因为钱一到账，就先花了。
 今天教你一个最笨、但最管用的办法：
@@ -177,10 +185,9 @@ ffmpeg -i 配音版.mp4 -vf subtitles=out/voiceover.srt -c:a copy 成片.mp4
 
 | 对比项 | 人工配音 | 本地开源 TTS 模型 | 本技能 |
 |---|---|---|---|
-| 是否需要显卡 | 不需要，但需要录音环境和配音员档期 | 通常需要（小模型可用 CPU，但更慢），还要下载模型权重、配置环境 | 不需要，本地只跑 Python 标准库，生成在云端完成 |
-| 改稿成本 | 改一句往往要重新约录、补录，再对轨 | 改完重跑，但分段、拼接、对齐要自己做 | 只改那一行重跑，其余句子复用已生成结果，自动重新拼接和出字幕 |
-| 多角色 | 需要多位配音员分别录制 | 取决于模型，一般要自己分段调用再拼接 | 稿件里用 `[角色]` 标签，一条命令出整段多角色音轨 |
-| 多语种 | 需要对应语种的配音员 | 取决于模型支持的语种 | 10 种语言，同一个克隆音色可跨语言 |
+| 是否需要显卡 | 不需要，但需要录音环境和配音员档期 | 通常需要（小模型可用 CPU 但更慢），还要下载模型权重、配环境 | 不需要，本地只跑 Python 标准库，生成在云端完成 |
+| 改稿成本 | 改一句往往要补录、再对轨 | 改完重跑，但分段、拼接、对齐要自己做 | 只改那一行重跑，其余句子复用 `out/lines/` 缓存，自动重新拼接和出字幕 |
+| 多角色 | 需要多位配音员分别录 | 取决于模型，一般要自己分段调用再拼接 | 稿件里用 `[角色]` 标签，一条命令出整段多角色音轨 |
 | 字幕时间轴 | 需另外听写、打轴 | 一般要再跑一遍语音识别 | 配音时同时输出 SRT 和逐句时间 `manifest.json` |
 | 情绪表演 | 真人状态好时最自然，但受当天状态影响 | 取决于模型和调参 | 稳定一致；复杂情绪表演不如状态好的真人，适合信息型口播 |
 
@@ -188,69 +195,74 @@ ffmpeg -i 配音版.mp4 -vf subtitles=out/voiceover.srt -c:a copy 成片.mp4
 
 ## 常见问题（FAQ）
 
-**抖音口播用 AI 配音会限流吗？**
-没有任何工具能保证不限流。平台要求对 AI 生成内容进行标注，按规则在发布时声明“内容由 AI 生成”是必须做的；流量更多取决于内容质量和完播率。用你本人的克隆声音、内容原创，是更稳妥的做法。
+**抖音口播配音用 AI 会限流吗？**
+没有任何工具能保证不限流。平台要求对 AI 生成内容进行标注，按规则在发布时声明是必须做的；流量更多取决于内容质量和完播率。用你本人的声音、内容原创，是更稳妥的做法。
 
-**AI 口播配音需要自己录音吗？**
-只需一次 5–10 秒清晰录音来克隆音色，之后每条视频都只写稿；也可以用账号里已保存的音色（`voices` 查看 actor_id）。
+**口播配音需要自己录音吗？**
+只需准备一段清晰的参考音频（或在服务方客户端复刻好角色），之后每条视频都只写稿。参考音频的具体要求以官网说明为准。
 
-**克隆口播音色时，样本怎么录效果最好？**
-安静房间、手机离嘴一拳距离、用你平时口播的语气读一段完整句子，不要背景音乐和混响；样本里说的话可以写进 `ref_text=`。
+**口播配音用的参考音频怎么录效果最好？**
+安静房间、手机离嘴一拳距离、用你平时口播的语气读完整句子，不要背景音乐和混响；把音频里说的话原样写进 `ref_text=`。
 
-**口播稿里的数字、英文总是读错怎么办？**
-把它们写成你想听到的读法（如“百分之三点五”“A I”），再跑同一条命令：只有改过的这一行会重新生成，其余句子复用之前的结果，不会重复计费。
+**口播配音里的数字、英文总是读错怎么办？**
+把它们写成你想听到的读法（如“百分之三点五”“A I”），再跑同一条命令：只有改过的这一行会重新生成，其余句子复用之前的结果。
 
-**生成的口播字幕能直接用在竖屏视频吗？**
+**口播配音的字幕能直接用在竖屏视频吗？**
 可以。`--preset koubo` 每条字幕最多 14 字，适配 9:16 竖屏；想更短可加 `--max-chars 12`。
 
-**同一篇稿子能做英文版吗，声音还是我吗？**
-能。翻译后给角色加 `language=en`，同一个克隆音色可跨语言说话，英文字幕建议 `--max-chars 40`。
+**口播配音能做英文版吗？**
+可以把稿件翻译改写成英文再生成；音色选账号里适合英文的角色或英文参考音频，效果以试听为准，英文字幕建议 `--max-chars 40`。
 
-**需要显卡或部署模型吗？**
+**口播配音需要显卡或部署模型吗？**
 不需要。本地只运行 Python 3.9+ 标准库脚本，生成在 Miragea 云端完成。
 
-**支持哪些 AI Agent？**
+**口播配音支持哪些 AI Agent？**
 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy 等能运行 Python 脚本的 Agent 都可以直接调用。
 
-**没有 API Key 能先试吗？**
+**没有 API Key 能先试口播配音吗？**
 可以，加 `--dry-run` 会输出静音占位音频和时间轴，用来检查稿件格式和流程。
 
-**可以用某个明星或主播的声音做口播吗？**
+**可以用某个明星或主播的声音做口播配音吗？**
 不可以。只克隆你本人或已获书面授权的声音。
 
 ## 稿件语法
 
-- 开头 `---` 之间定义角色：`角色名: actor_id=音色ID` 或 `角色名: ref=参考音频URL ref_text="样本原文"`，可加 `speed=`（0.25–4）、`language=`（zh/en/ja/ko/de/fr/ru/pt/es/it）、`model=`、`tags=a,b`。
+- 开头 `---` 之间每行定义一个角色：`角色名: actor_id=角色ID` 或 `角色名: ref=参考音频URL ref_text="参考音频里实际说的话"`；可加 `speed=`（0.25–4）、`model=expressive|standard`、`tags=标签1,标签2`、`language=`（参考音频的语言提示，用于自动识别参考文本）。
+- `ref_text=` 只和 `ref=` 一起用；省略时服务端自动识别参考文本，计费方式不同，以 `capabilities` 为准。
 - 正文 `[角色] 台词` 或 `[角色]：台词`；不写标签沿用上一位说话人。
-- `[pause 0.6]` 或 `[停顿 0.6]` 插入停顿（秒）；`#` 开头的标题行、空行和 `<!-- 注释 -->` 会被忽略。
-- 单句超过 API 的 `max_text_length` 会在生成前报错，拆成短句即可。
-- 同一句同一音色重复生成会复用任务、不重复扣额度；要新的一版加 `--fresh`。
+- `[pause 0.6]` / `[停顿 0.6]` 插入停顿（秒）；`#` 开头的行、空行和 `<!-- 注释 -->` 会被忽略。
+- 单句超过 `capabilities` 里的 `audio.max_text_length` 会被接口拒绝，拆成短句即可。
+- 每句音频缓存在 `out/lines/`，同一句同一设置再次运行直接复用；没缓存时用同一个幂等键提交，服务端返回原任务、不重复创建。要新的一版加 `--fresh`。
 
 ## 出问题了？
 
 | 现象 | 处理 |
 |---|---|
-| `MIRAGEA_API_KEY is not set` | 去 miragea.ai/workspace/api 生成 Key 并 `export` |
+| `missing_api_key` / `MIRAGEA_API_KEY is not set` | 生成 Key 后 `export MIRAGEA_API_KEY=...`；或先加 `--dry-run` |
 | `speakers without a voice` | 给该角色补 `actor_id=` 或 `ref=` |
-| `401 / 403` | Key 无效或没开 API 权限，重新生成 |
-| `429` / 网络错误 | 自动重试；仍失败稍后重跑，同一句不会重复计费 |
-| `line too long` | 把这一句拆短 |
-| 任务超时 | 任务仍在服务器运行，直接重跑同一命令即可取回 |
+| 401 | 检查 Key；不要把 Key 写进日志 |
+| 403 | 检查账号的 API 访问权限 |
+| 400 / 413 | 修正参数：模式、标签、语速、单句字数；或减小上传文件、缩短媒体 |
+| 409 | 幂等键被用于不同输入，或字幕费率已变化：重新确认后再提交 |
+| 429 | 额度不足或限流，等待或补充额度 |
+| 等待超时 / 网络中断 | 任务可能仍在运行：直接重跑同一条命令（同一幂等键会取回原任务），或用 `miragea_audio.py task / wait 任务ID` 继续查询，不要换键重发 |
+| 拼接时报 WAV 格式不一致 | 每句音频都保存在 `out/lines/`，可用剪辑软件或 ffmpeg 拼接 |
+
+官方客户端退出码：0 请求成功（没有 `--wait` 时可能仍在排队），1 任务失败，2 客户端或接口错误。
 
 ## 合规
 
 - 只克隆你本人或已获得明确授权的声音，不模仿明星、主播、公众人物或任何未授权的人。
-- 按《人工智能生成合成内容标识办法》和抖音、快手、视频号、小红书、B站、YouTube、TikTok 等平台规则，发布时声明或标注 AI 生成内容。
+- 按《人工智能生成合成内容标识办法》和抖音、快手、视频号、小红书、B站等平台规则，发布时声明或标注 AI 生成内容。
 - 财经、医疗、法律类口播只做配音，不替内容背书；投资建议、疗效等表述按平台和行业规定审核后再发布。
-- 本技能代码为原创，MIT 许可（见 `LICENSE.txt`）；配音与字幕能力由 Miragea API 提供。
+- `scripts/miragea_audio.py` is the official client, shipped unchanged；`scripts/voiceover.py`（稿件拼接层）为原创，MIT 许可（见 `LICENSE.txt`）。配音与字幕能力由 Miragea 开放 API 提供。
 
 ## English Summary
 
-- **Talking-head AI voiceover (口播配音)** skill for AI agents: script in, voiceover WAV + SRT subtitles + per-line timing JSON out.
-- **Voice cloning** from a 5–10 s sample; reuse the same cloned voice across 10 languages (zh, en, ja, ko, de, fr, ru, pt, es, it).
+- **Talking-head voiceover (口播配音)** skill for AI agents: script in, voiceover WAV + SRT subtitles + per-line timing JSON out.
+- Voice: your saved voice (`actor_id`) or **voice cloning** from a reference audio URL plus its transcript; tone tags and speed 0.25–4.
 - Edit one line, re-run, and only that line is regenerated — no re-recording.
-- `--preset koubo` tunes line gaps and short subtitle cues for 9:16 vertical video (Douyin, TikTok, YouTube Shorts, Reels).
-- Python 3.9+ standard library only, no GPU; `--dry-run` tests the pipeline offline. Text-to-speech by the Miragea API.
-- Works with Claude Code, Codex, OpenClaw, Cursor and WorkBuddy.
+- `--preset koubo` tunes line gaps and short subtitle cues for 9:16 vertical video.
+- Python 3.9+ standard library only, no GPU; `--dry-run` tests offline. Service: Miragea API (https://miragea.ai/v1).
 
-**关键词**：口播配音、AI口播、口播稿配音、AI配音、声音克隆、声音复刻、文字转语音、TTS、知识博主配音、财经口播、情感口播、竖屏字幕、字幕生成、SRT、短视频配音、voiceover、voice cloning、text to speech
+**关键词**：口播配音、口播视频、声音克隆、AI配音、口播稿配音、AI口播、口播文案配音、声音复刻、文字转语音、知识博主配音、财经口播、竖屏字幕、字幕生成、SRT、TTS、voiceover、voice cloning、text to speech
