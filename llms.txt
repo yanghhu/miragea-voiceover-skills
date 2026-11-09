@@ -24,6 +24,11 @@ AI voiceover & subtitle skills for agents: script in, multi-voice voiceover WAV 
 - 输出：voiceover.wav、voiceover.srt、manifest.json、lines/（每句缓存）
 - 环境变量：MIRAGEA_API_KEY（https://miragea.ai/workspace/api 生成），可选 MIRAGEA_BASE_URL（默认 https://miragea.ai/v1）
 
+## MCP Servers
+
+- [quips-voiceover-mcp](mcp/quips-voiceover-mcp/README.md): AI配音 MCP / 文字转语音 MCP / 播客生成 MCP / 字幕生成 MCP（灵声妙语 Quips 国内版，QUIPS_API_KEY）。工具 get_capabilities、list_voices、text_to_speech（可选长文 WAV+SRT）、dialogue_voiceover（双人播客、多角色/多人视频配音 → voiceover.wav + voiceover.srt + manifest.json，逐句缓存可续跑）、generate_subtitles（音视频 → SRT/TXT/JSON）、get_task；提示词 two_host_podcast、multi_character_dubbing。stdio，Python 3.9+ 标准库，--dry-run / --self-test 离线试跑。
+- [miragea-voiceover-mcp](mcp/miragea-voiceover-mcp/README.md): AI voiceover MCP server for Miragea (MIRAGEA_API_KEY): text to speech, voice cloning, two-host podcast generator and multi-speaker dialogue dubbing to WAV + SRT + per-line timings, audio/video to SRT subtitles. Same tools and prompts; install with `uvx --from "git+https://github.com/yanghhu/miragea-voiceover-skills#subdirectory=mcp/miragea-voiceover-mcp" miragea-voiceover-mcp`, the .mcpb bundle on Releases, or as a WorkBuddy/CodeBuddy/Claude Code plugin (`/plugin marketplace add yanghhu/miragea-voiceover-skills`).
+
 ## Optional
 
 - [Miragea API guide](https://miragea.ai/v1/guide): 公开接口说明（能力发现、音频生成、字幕识别、任务与幂等）

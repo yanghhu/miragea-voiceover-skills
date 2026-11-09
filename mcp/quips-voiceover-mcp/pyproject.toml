@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quips-voiceover-mcp"
+version = "1.0.0"
+description = "AI配音 MCP：文字转语音、双人播客/多角色对话配音（WAV+SRT）、音视频字幕生成，灵声妙语 Quips 官方 API。"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [{name = "Quips"}]
+keywords = ["ai-voiceover", "text-to-speech", "tts", "podcast-generator", "two-host-podcast", "multi-speaker", "dialogue-voiceover", "dubbing", "subtitles", "srt", "speech-to-text", "voice-cloning", "mcp", "mcp-server"]
+classifiers = ["Programming Language :: Python :: 3", "License :: OSI Approved :: MIT License", "Topic :: Multimedia :: Sound/Audio :: Speech"]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/yanghhu/miragea-voiceover-skills/tree/main/mcp/quips-voiceover-mcp"
+Repository = "https://github.com/yanghhu/miragea-voiceover-skills"
+Service = "https://www.quips.cn"
+
+[project.scripts]
+quips-voiceover-mcp = "quips_voiceover_mcp.server:main"
+
+[tool.setuptools]
+packages = ["quips_voiceover_mcp"]

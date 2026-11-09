@@ -1,0 +1,36 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.yanghhu/quips-voiceover-mcp",
+  "title": "Quips AI Voiceover MCP (TTS, Podcast, Subtitles)",
+  "description": "AI voiceover MCP (Quips 灵声妙语): TTS, two-host podcast & multi-speaker dubbing to WAV+SRT, subtitles",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/yanghhu/miragea-voiceover-skills/tree/main/mcp/quips-voiceover-mcp",
+  "repository": {
+    "url": "https://github.com/yanghhu/miragea-voiceover-skills",
+    "source": "github",
+    "subfolder": "mcp/quips-voiceover-mcp"
+  },
+  "packages": [
+    {
+      "registryType": "mcpb",
+      "identifier": "https://github.com/yanghhu/miragea-voiceover-skills/releases/download/quips-voiceover-mcp-v1.0.0/quips-voiceover-mcp-1.0.0.mcpb",
+      "fileSha256": "c203a3f98f96d162ff8d2cf189b4be7bef0fc9ef8a24b34d406aad93a8c34fc8",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "QUIPS_API_KEY",
+          "description": "Quips (灵声妙语) API key (https://www.quips.cn/workspace/api)",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "QUIPS_OUTPUT_DIR",
+          "description": "Folder for generated audio and subtitles",
+          "isRequired": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+# Smithery configuration: https://smithery.ai/docs/build/project-config
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    required: [apiKey]
+    properties:
+      apiKey:
+        type: string
+        title: Quips (灵声妙语) API key
+        description: Create it at https://www.quips.cn/workspace/api
+      outputDir:
+        type: string
+        title: Output folder
+        description: Where generated WAV / SRT files are written
+  commandFunction: |-
+    (config) => ({
+      command: 'python3',
+      args: ['quips_voiceover_mcp/server.py'],
+      env: Object.assign({ QUIPS_API_KEY: config.apiKey }, config.outputDir ? { QUIPS_OUTPUT_DIR: config.outputDir } : {})
+    })
+  exampleConfig:
+    apiKey: your-api-key

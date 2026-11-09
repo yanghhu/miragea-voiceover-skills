@@ -1,0 +1,37 @@
+{
+  "name": "quips-voiceover-mcp",
+  "version": "1.0.0",
+  "description": "AI配音 MCP：文字转语音、双人播客/多角色对话配音（WAV+SRT）、音视频字幕生成，灵声妙语 Quips 官方 API。",
+  "author": {
+    "name": "Quips",
+    "url": "https://www.quips.cn"
+  },
+  "homepage": "https://github.com/yanghhu/miragea-voiceover-skills/tree/main/mcp/quips-voiceover-mcp",
+  "repository": "https://github.com/yanghhu/miragea-voiceover-skills",
+  "license": "MIT",
+  "keywords": [
+    "ai-voiceover",
+    "text-to-speech",
+    "tts",
+    "podcast-generator",
+    "two-host-podcast",
+    "multi-speaker",
+    "dialogue-voiceover",
+    "dubbing",
+    "subtitles",
+    "srt",
+    "speech-to-text",
+    "voice-cloning",
+    "mcp",
+    "mcp-server"
+  ],
+  "skills": "./skills/",
+  "mcpServers": {
+    "quips-voiceover": {
+      "command": "python3",
+      "args": [
+        "${CODEBUDDY_PLUGIN_ROOT}/quips_voiceover_mcp/server.py"
+      ]
+    }
+  }
+}

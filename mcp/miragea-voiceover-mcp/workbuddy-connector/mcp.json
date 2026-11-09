@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "miragea-voiceover-mcp": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/yanghhu/miragea-voiceover-skills#subdirectory=mcp/miragea-voiceover-mcp",
+        "miragea-voiceover-mcp"
+      ],
+      "env": {
+        "MIRAGEA_API_KEY": "${MIRAGEA_API_KEY}"
+      },
+      "timeout": 30000
+    }
+  }
+}

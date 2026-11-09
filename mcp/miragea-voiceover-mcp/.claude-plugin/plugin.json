@@ -1,0 +1,37 @@
+{
+  "name": "miragea-voiceover-mcp",
+  "version": "1.0.0",
+  "description": "AI voiceover MCP: text to speech, two-host podcast & multi-speaker dubbing (WAV+SRT), subtitles, via Miragea.",
+  "author": {
+    "name": "Miragea",
+    "url": "https://miragea.ai"
+  },
+  "homepage": "https://github.com/yanghhu/miragea-voiceover-skills/tree/main/mcp/miragea-voiceover-mcp",
+  "repository": "https://github.com/yanghhu/miragea-voiceover-skills",
+  "license": "MIT",
+  "keywords": [
+    "ai-voiceover",
+    "text-to-speech",
+    "tts",
+    "podcast-generator",
+    "two-host-podcast",
+    "multi-speaker",
+    "dialogue-voiceover",
+    "dubbing",
+    "subtitles",
+    "srt",
+    "speech-to-text",
+    "voice-cloning",
+    "mcp",
+    "mcp-server"
+  ],
+  "skills": "./skills/",
+  "mcpServers": {
+    "miragea-voiceover": {
+      "command": "python3",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/miragea_voiceover_mcp/server.py"
+      ]
+    }
+  }
+}

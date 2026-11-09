@@ -1,0 +1,25 @@
+{
+  "name": "Miragea AI Voiceover",
+  "name_zh": "Miragea AI配音",
+  "name_en": "Miragea AI Voiceover",
+  "description": "AI voiceover, text to speech, two-host podcast & multi-speaker dubbing (WAV+SRT), subtitles.",
+  "description_zh": "AI配音、文字转语音、双人播客/多角色对话配音（WAV+SRT）和音视频字幕生成。",
+  "description_en": "AI voiceover, text to speech, two-host podcast & multi-speaker dubbing (WAV+SRT), subtitles.",
+  "source": "miragea-voiceover-mcp",
+  "type": "mcp",
+  "auth_mode": "token",
+  "version": "1.0.0",
+  "minWorkbuddyVersion": "4.24.0",
+  "examples_zh": [
+    "把这段文案用我的音色转成语音",
+    "把这份两人对话稿做成双人播客，输出 WAV 和 SRT 字幕",
+    "给这个视频生成 SRT 字幕",
+    "列出我账号里能用的音色"
+  ],
+  "examples_en": [
+    "Turn this paragraph into speech with my saved voice",
+    "Make this two-host script into a podcast with WAV and SRT",
+    "Generate SRT subtitles for this video",
+    "List the voices in my account"
+  ]
+}

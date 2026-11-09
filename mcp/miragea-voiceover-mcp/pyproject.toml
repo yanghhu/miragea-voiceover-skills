@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "miragea-voiceover-mcp"
+version = "1.0.0"
+description = "AI voiceover MCP: text to speech, two-host podcast & multi-speaker dubbing (WAV+SRT), subtitles, via Miragea."
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [{name = "Miragea"}]
+keywords = ["ai-voiceover", "text-to-speech", "tts", "podcast-generator", "two-host-podcast", "multi-speaker", "dialogue-voiceover", "dubbing", "subtitles", "srt", "speech-to-text", "voice-cloning", "mcp", "mcp-server"]
+classifiers = ["Programming Language :: Python :: 3", "License :: OSI Approved :: MIT License", "Topic :: Multimedia :: Sound/Audio :: Speech"]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/yanghhu/miragea-voiceover-skills/tree/main/mcp/miragea-voiceover-mcp"
+Repository = "https://github.com/yanghhu/miragea-voiceover-skills"
+Service = "https://miragea.ai"
+
+[project.scripts]
+miragea-voiceover-mcp = "miragea_voiceover_mcp.server:main"
+
+[tool.setuptools]
+packages = ["miragea_voiceover_mcp"]

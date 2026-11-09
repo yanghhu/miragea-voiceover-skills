@@ -1,0 +1,51 @@
+{
+  "name": "miragea-voiceover",
+  "owner": {
+    "name": "yanghhu",
+    "url": "https://github.com/yanghhu"
+  },
+  "description": "AI配音、文字转语音、播客生成、字幕生成 MCP 插件 · AI voiceover, TTS, podcast & subtitle MCP plugins",
+  "version": "1.0.0",
+  "plugins": [
+    {
+      "name": "quips-voiceover-mcp",
+      "source": "./mcp/quips-voiceover-mcp",
+      "description": "AI配音 MCP：文字转语音、双人播客/多角色对话配音（WAV+SRT）、音视频字幕生成（灵声妙语 Quips 国内版）。",
+      "version": "1.0.0",
+      "author": {
+        "name": "Quips"
+      },
+      "homepage": "https://github.com/yanghhu/miragea-voiceover-skills/tree/main/mcp/quips-voiceover-mcp",
+      "repository": "https://github.com/yanghhu/miragea-voiceover-skills",
+      "license": "MIT",
+      "keywords": [
+        "AI配音",
+        "文字转语音",
+        "播客生成",
+        "字幕生成",
+        "mcp"
+      ],
+      "category": "productivity"
+    },
+    {
+      "name": "miragea-voiceover-mcp",
+      "source": "./mcp/miragea-voiceover-mcp",
+      "description": "AI voiceover MCP: text to speech, two-host podcast & multi-speaker dubbing (WAV+SRT), subtitles (Miragea).",
+      "version": "1.0.0",
+      "author": {
+        "name": "Miragea"
+      },
+      "homepage": "https://github.com/yanghhu/miragea-voiceover-skills/tree/main/mcp/miragea-voiceover-mcp",
+      "repository": "https://github.com/yanghhu/miragea-voiceover-skills",
+      "license": "MIT",
+      "keywords": [
+        "ai-voiceover",
+        "text-to-speech",
+        "podcast-generator",
+        "subtitles",
+        "mcp"
+      ],
+      "category": "productivity"
+    }
+  ]
+}

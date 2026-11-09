@@ -1,0 +1,18 @@
+{
+  "title": "灵声妙语（Quips） API Key",
+  "title_en": "Quips (灵声妙语) API key",
+  "description": "用于调用配音与字幕接口。凭证仅保存在本机 ~/.workbuddy 目录。",
+  "description_en": "Used to call the voiceover and subtitle API. Stored locally under ~/.workbuddy only.",
+  "docUrl": "https://www.quips.cn/workspace/api",
+  "docLabel": "如何获取 API Key？",
+  "fields": [
+    {
+      "key": "QUIPS_API_KEY",
+      "label": "API Key",
+      "type": "password",
+      "required": true,
+      "placeholder": "在工作台 → 开放 API 生成",
+      "description": "在 https://www.quips.cn/workspace/api 生成"
+    }
+  ]
+}

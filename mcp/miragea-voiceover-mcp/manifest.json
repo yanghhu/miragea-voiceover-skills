@@ -1,0 +1,122 @@
+{
+  "manifest_version": "0.3",
+  "name": "miragea-voiceover-mcp",
+  "display_name": "Miragea AI Voiceover MCP (Text to Speech, Podcast Generator, Subtitles)",
+  "version": "1.0.0",
+  "description": "AI voiceover MCP: text to speech, two-host podcast & multi-speaker dubbing (WAV+SRT), subtitles, via Miragea.",
+  "long_description": "AI voiceover / text to speech / multi-speaker dialogue voiceover (two-host podcast, multi-character dubbing) / subtitle generation. Start with get_capabilities and list_voices; use text_to_speech for a single text, dialogue_voiceover for scripts (WAV + SRT + manifest.json), generate_subtitles for audio/video to SRT. Generation tools use account credits, so confirm the script and voices with the user first. Clone a voice only with the speaker's consent, and label AI-generated audio where it is published.",
+  "author": {
+    "name": "Miragea",
+    "url": "https://miragea.ai"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yanghhu/miragea-voiceover-skills.git"
+  },
+  "homepage": "https://github.com/yanghhu/miragea-voiceover-skills/tree/main/mcp/miragea-voiceover-mcp",
+  "documentation": "https://github.com/yanghhu/miragea-voiceover-skills/blob/main/mcp/miragea-voiceover-mcp/README.md",
+  "support": "https://github.com/yanghhu/miragea-voiceover-skills/issues",
+  "icon": "icon.png",
+  "server": {
+    "type": "python",
+    "entry_point": "miragea_voiceover_mcp/server.py",
+    "mcp_config": {
+      "command": "python3",
+      "args": [
+        "${__dirname}/miragea_voiceover_mcp/server.py"
+      ],
+      "env": {
+        "MIRAGEA_API_KEY": "${user_config.api_key}",
+        "MIRAGEA_OUTPUT_DIR": "${user_config.output_dir}"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "get_capabilities",
+      "description": "Read the live voiceover & subtitle capabilities of this account: AI voiceover / text-to-speech generation modes (model), tone tags, audio formats, speed range, per-request text lim"
+    },
+    {
+      "name": "list_voices",
+      "description": "List the saved voices/characters in the account (including cloned voices) with actor_id, name and language, to pick voices for text_to_speech and dialogue_voiceover. Read-only."
+    },
+    {
+      "name": "text_to_speech",
+      "description": "Text to speech (TTS / AI voiceover): speak a text with a saved voice (actor_id) or clone a voice from a reference clip (reference_audio_url + reference_text; only with the speaker'"
+    },
+    {
+      "name": "dialogue_voiceover",
+      "description": "Multi-speaker dialogue voiceover / two-host podcast generator: a dialogue script (`[Host A] line` or `Host A: line`, `[pause 0.8]` for silence) where every speaker has its own voic"
+    },
+    {
+      "name": "generate_subtitles",
+      "description": "Subtitle generator: upload a local audio or video file and get timed SRT subtitles, or a TXT transcript / JSON segments (auto subtitles for video, audio to SRT, speech to text). Th"
+    },
+    {
+      "name": "get_task",
+      "description": "Check or keep waiting for an existing task (voice generation or subtitle recognition) and save its audio or subtitles to a file. Use it after a wait timeout or network error instea"
+    }
+  ],
+  "prompts": [
+    {
+      "name": "two_host_podcast",
+      "description": "Write a two-host podcast script in the format dialogue_voiceover expects (alternating hosts, chapters, pauses).",
+      "arguments": [
+        "topic",
+        "minutes"
+      ],
+      "text": "Write a two-host podcast script of about ${arguments.minutes} minutes on the topic below, to be voiced with the dialogue_voiceover tool.\nFormat: one line per utterance, written as `[Host A] text` or `[Host B] text`; put a line `[pause 0.8]` between chapters; `# Chapter title` lines are comments and are not spoken. Conversational, short sentences, real back-and-forth, no stage directions. Afterwards list the two speaker names and remind me to pick an actor_id with list_voices or give a reference clip for each, then call dialogue_voiceover (style=podcast).\nTopic / source: ${arguments.topic}"
+    },
+    {
+      "name": "multi_character_dubbing",
+      "description": "Turn dialogue, subtitles or a story into a multi-character dubbing script for dialogue_voiceover.",
+      "arguments": [
+        "source"
+      ],
+      "text": "Rewrite the material below as a multi-character dubbing script for the dialogue_voiceover tool.\nFormat: one line per utterance as `[Character] text`, narration as `[Narrator]`, a line `[pause 0.5]` where a pause is needed; drop stage directions, split long sentences. Finally list every character name and remind me to choose a voice for each (list_voices actor_id or a reference clip), then call dialogue_voiceover (style=dubbing).\nMaterial: ${arguments.source}"
+    }
+  ],
+  "keywords": [
+    "ai-voiceover",
+    "text-to-speech",
+    "tts",
+    "podcast-generator",
+    "two-host-podcast",
+    "multi-speaker",
+    "dialogue-voiceover",
+    "dubbing",
+    "subtitles",
+    "srt",
+    "speech-to-text",
+    "voice-cloning",
+    "mcp",
+    "mcp-server"
+  ],
+  "license": "MIT",
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "python": ">=3.9"
+    }
+  },
+  "user_config": {
+    "api_key": {
+      "type": "string",
+      "title": "Miragea API key",
+      "description": "Create it at https://miragea.ai/workspace/api",
+      "sensitive": true,
+      "required": true
+    },
+    "output_dir": {
+      "type": "directory",
+      "title": "Output folder",
+      "description": "Where generated audio and subtitles are saved",
+      "required": false,
+      "default": "${HOME}/miragea-voiceover"
+    }
+  }
+}

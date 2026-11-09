@@ -1,0 +1,36 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.yanghhu/miragea-voiceover-mcp",
+  "title": "Miragea AI Voiceover MCP (Text to Speech, Podcast Generator, Subtitles)",
+  "description": "AI voiceover MCP: text to speech, two-host podcast & multi-speaker dubbing to WAV+SRT, subtitles",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/yanghhu/miragea-voiceover-skills/tree/main/mcp/miragea-voiceover-mcp",
+  "repository": {
+    "url": "https://github.com/yanghhu/miragea-voiceover-skills",
+    "source": "github",
+    "subfolder": "mcp/miragea-voiceover-mcp"
+  },
+  "packages": [
+    {
+      "registryType": "mcpb",
+      "identifier": "https://github.com/yanghhu/miragea-voiceover-skills/releases/download/miragea-voiceover-mcp-v1.0.0/miragea-voiceover-mcp-1.0.0.mcpb",
+      "fileSha256": "8d6aa390477013372d56fb249eeff5ebb674080e8012ee6097a1ff734a88fd69",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "MIRAGEA_API_KEY",
+          "description": "Miragea API key (https://miragea.ai/workspace/api)",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "MIRAGEA_OUTPUT_DIR",
+          "description": "Folder for generated audio and subtitles",
+          "isRequired": false
+        }
+      ]
+    }
+  ]
+}

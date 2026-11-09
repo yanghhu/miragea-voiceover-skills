@@ -1,4 +1,4 @@
-# Miragea AI配音 · 文字转语音 · 声音克隆 · 字幕生成 Agent Skills
+# Miragea AI配音 · 文字转语音 · 声音克隆 · 字幕生成 Agent Skills & MCP Servers
 
 **AI Voiceover · Text to Speech (TTS) · Voice Cloning · Subtitle Generator — open-source Agent Skills (`SKILL.md`) powered by the official [Miragea](https://miragea.ai) API.**
 
@@ -76,6 +76,35 @@ python3 scripts/miragea_audio.py recognize --file video.mp4 --wait --output vide
 生成模式、语气标签、单句字数上限和计费以 `python3 scripts/miragea_audio.py capabilities` 的实时返回为准。
 
 Generation modes, emotion tags, per-line limits and billing are whatever `python3 scripts/miragea_audio.py capabilities` returns live.
+
+## MCP 服务器 · MCP Servers（AI配音 MCP / 文字转语音 MCP / 播客生成 MCP / 字幕生成 MCP）
+
+除了技能，本仓库还提供两个 **MCP 服务器**（Model Context Protocol，stdio，Python 3.9+ 标准库）：在 Claude Desktop、Cursor、WorkBuddy、Cherry Studio 等任何 MCP 客户端里直接调用 **文字转语音、声音克隆、多角色对话配音（双人播客 / 多人视频配音，一次输出 WAV + SRT + 逐句时间轴）和音视频字幕生成**。
+
+Besides the skills, the repo ships two **MCP servers** (stdio, Python 3.9+ stdlib) for any MCP client: text to speech, voice cloning, multi-speaker dialogue voiceover (two-host podcast generator, multi-character dubbing → WAV + SRT + per-line timings) and audio/video to SRT subtitles.
+
+| MCP 服务器 | 服务 | 环境变量 | 文档 |
+|---|---|---|---|
+| [quips-voiceover-mcp](mcp/quips-voiceover-mcp) | 灵声妙语 Quips（国内） | `QUIPS_API_KEY` | 中文 |
+| [miragea-voiceover-mcp](mcp/miragea-voiceover-mcp) | Miragea（海外） | `MIRAGEA_API_KEY` | English |
+
+工具 Tools：`get_capabilities` · `list_voices` · `text_to_speech` · `dialogue_voiceover` · `generate_subtitles` · `get_task`；提示词 Prompts：`two_host_podcast` · `multi_character_dubbing`。
+
+```json
+{
+  "mcpServers": {
+    "miragea-voiceover": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/yanghhu/miragea-voiceover-skills#subdirectory=mcp/miragea-voiceover-mcp", "miragea-voiceover-mcp"],
+      "env": { "MIRAGEA_API_KEY": "your-api-key" }
+    }
+  }
+}
+```
+
+- 国内版把 `miragea` 换成 `quips`、环境变量换成 `QUIPS_API_KEY`。离线试跑：`python3 mcp/<名称>/<包名>/server.py --self-test`（无需 Key，不联网）。
+- Claude Desktop 扩展包（`.mcpb`）见 Releases；WorkBuddy / CodeBuddy / Claude Code 可把本仓库添加为插件市场：`/plugin marketplace add yanghhu/miragea-voiceover-skills`，安装 `quips-voiceover-mcp` 或 `miragea-voiceover-mcp` 插件。
+- WorkBuddy 手动配置：写入 `~/.workbuddy/mcp.json`（格式同上），在连接器管理里点“信任”。
 
 ## 合规 · Responsible use
 

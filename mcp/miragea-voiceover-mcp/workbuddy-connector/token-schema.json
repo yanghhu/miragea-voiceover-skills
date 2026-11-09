@@ -1,0 +1,18 @@
+{
+  "title": "Miragea API key",
+  "title_en": "Miragea API key",
+  "description": "Used to call the voiceover and subtitle API. Stored locally under ~/.workbuddy only.",
+  "description_en": "Used to call the voiceover and subtitle API. Stored locally under ~/.workbuddy only.",
+  "docUrl": "https://miragea.ai/workspace/api",
+  "docLabel": "Get an API key",
+  "fields": [
+    {
+      "key": "MIRAGEA_API_KEY",
+      "label": "API Key",
+      "type": "password",
+      "required": true,
+      "placeholder": "Workspace -> Open API -> Generate",
+      "description": "Create it at https://miragea.ai/workspace/api"
+    }
+  ]
+}

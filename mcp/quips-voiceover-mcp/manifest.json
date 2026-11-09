@@ -1,0 +1,122 @@
+{
+  "manifest_version": "0.3",
+  "name": "quips-voiceover-mcp",
+  "display_name": "灵声妙语 AI配音 MCP（文字转语音·播客生成·字幕生成）",
+  "version": "1.0.0",
+  "description": "AI配音 MCP：文字转语音、双人播客/多角色对话配音（WAV+SRT）、音视频字幕生成，灵声妙语 Quips 官方 API。",
+  "long_description": "AI配音 / 文字转语音 / 多角色对话配音（双人播客、多人视频配音）/ 字幕生成。先用 get_capabilities 和 list_voices 了解可用模式和音色；单段文字用 text_to_speech；对话稿用 dialogue_voiceover，输出 WAV + SRT + manifest.json；音视频转字幕用 generate_subtitles。生成类工具会消耗账号额度，调用前向用户确认文稿和音色。声音克隆须获得声音本人授权；发布时按平台规则标注 AI 生成内容。",
+  "author": {
+    "name": "Quips",
+    "url": "https://www.quips.cn"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yanghhu/miragea-voiceover-skills.git"
+  },
+  "homepage": "https://github.com/yanghhu/miragea-voiceover-skills/tree/main/mcp/quips-voiceover-mcp",
+  "documentation": "https://github.com/yanghhu/miragea-voiceover-skills/blob/main/mcp/quips-voiceover-mcp/README.md",
+  "support": "https://github.com/yanghhu/miragea-voiceover-skills/issues",
+  "icon": "icon.png",
+  "server": {
+    "type": "python",
+    "entry_point": "quips_voiceover_mcp/server.py",
+    "mcp_config": {
+      "command": "python3",
+      "args": [
+        "${__dirname}/quips_voiceover_mcp/server.py"
+      ],
+      "env": {
+        "QUIPS_API_KEY": "${user_config.api_key}",
+        "QUIPS_OUTPUT_DIR": "${user_config.output_dir}"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "get_capabilities",
+      "description": "查询当前账号可用的配音与字幕能力：AI配音/文字转语音的合成模式（model）、语气标签（tags）、音频格式、语速范围、单次字数上限，以及字幕识别的文件大小/时长上限与当前费率。只读查询，不创建任务。Read live voiceover & subtitle capabilities (modes, tone tags, formats, text li"
+    },
+    {
+      "name": "list_voices",
+      "description": "列出账号里已保存的配音角色/音色（含已复刻的声音），返回 actor_id、name、language，供 text_to_speech 和 dialogue_voiceover 选音色。只读。List saved voices and their actor_id."
+    },
+    {
+      "name": "text_to_speech",
+      "description": "文字转语音（TTS / AI配音）：把一段文字用账号音色（actor_id）或参考音频声音克隆（reference_audio_url + reference_text，须获得声音本人授权）生成语音文件（mp3/wav/flac/opus/aac/pcm），可选语速 0.25–4 和语气标签。subtitles=true 时为长文模式：自动分句、拼成一条 W"
+    },
+    {
+      "name": "dialogue_voiceover",
+      "description": "多角色对话配音 / 双人播客生成：一份对话稿（`[主持人A] 台词` 或 `主持人A：台词`，`[pause 0.8]` 停顿）里每个角色用各自的音色，逐句生成后拼成一条 WAV，同时输出 SRT 字幕（可带说话人）和逐句时间轴 manifest.json。适用双人播客、AI播客、多人视频配音、短剧/动画对白配音、有声书多角色朗读。已完成的句子会缓存：中断或"
+    },
+    {
+      "name": "generate_subtitles",
+      "description": "字幕生成：上传本地音频或视频，自动识别生成带时间轴的 SRT 字幕，也可导出 TXT 文字稿或 JSON 分段（视频自动加字幕、音频转字幕、音频转文字）。提交时把当前费率作为 expected_rate 回传，费率变化时服务端会拒绝。会创建识别任务并消耗账号额度。Speech to subtitles: audio/video -> SRT / TXT / "
+    },
+    {
+      "name": "get_task",
+      "description": "查询或继续等待已创建的任务（配音生成或字幕识别），成功后可保存音频或字幕到文件。等待超时或网络中断后用它取回结果，不要重新提交新任务。Check or resume a task by task_id."
+    }
+  ],
+  "prompts": [
+    {
+      "name": "two_host_podcast",
+      "description": "生成可直接交给 dialogue_voiceover 的双人播客对话稿（两位主持人轮流说话，带章节和停顿）。",
+      "arguments": [
+        "topic",
+        "minutes"
+      ],
+      "text": "请围绕下面的主题写一份约 ${arguments.minutes} 分钟的双人播客对话稿，供 dialogue_voiceover 工具配音。\n格式要求：每行一句，写成 `[主持人A] 台词` 或 `[主持人B] 台词`；章节之间加一行 `[pause 0.8]`；可以用 `# 章节名` 作注释行（不会被读出）。口语化、短句、两人有来有回，不要舞台说明和括号动作。写完后列出需要的两个说话人名称，提醒我用 list_voices 选 actor_id 或提供参考音频，再调用 dialogue_voiceover（style=podcast）。\n主题/素材：${arguments.topic}"
+    },
+    {
+      "name": "multi_character_dubbing",
+      "description": "把对白、字幕或故事改写成多角色配音稿（每行一个角色），再交给 dialogue_voiceover 配音。",
+      "arguments": [
+        "source"
+      ],
+      "text": "把下面的内容整理成多角色配音稿，供 dialogue_voiceover 工具使用。\n格式要求：每行一句 `[角色名] 台词`，旁白用 `[旁白]`，需要停顿时单独一行 `[pause 0.5]`；去掉舞台说明和括号动作，长句拆短。最后列出所有角色名，提醒我为每个角色用 list_voices 选 actor_id 或提供参考音频，再调用 dialogue_voiceover（style=dubbing）。\n素材：${arguments.source}"
+    }
+  ],
+  "keywords": [
+    "ai-voiceover",
+    "text-to-speech",
+    "tts",
+    "podcast-generator",
+    "two-host-podcast",
+    "multi-speaker",
+    "dialogue-voiceover",
+    "dubbing",
+    "subtitles",
+    "srt",
+    "speech-to-text",
+    "voice-cloning",
+    "mcp",
+    "mcp-server"
+  ],
+  "license": "MIT",
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "python": ">=3.9"
+    }
+  },
+  "user_config": {
+    "api_key": {
+      "type": "string",
+      "title": "Quips (灵声妙语) API key",
+      "description": "Create it at https://www.quips.cn/workspace/api",
+      "sensitive": true,
+      "required": true
+    },
+    "output_dir": {
+      "type": "directory",
+      "title": "Output folder",
+      "description": "Where generated audio and subtitles are saved",
+      "required": false,
+      "default": "${HOME}/quips-voiceover"
+    }
+  }
+}
