@@ -63,7 +63,7 @@
   }
 }
 ```
-也可以下载 Releases 里的 `quips-voiceover-mcp-1.0.0.mcpb` 包双击安装（Claude Desktop 扩展，会提示填写 API Key）。
+也可以下载 [`mcp/dist/quips-voiceover-mcp-1.0.0.mcpb`](https://github.com/yanghhu/miragea-voiceover-skills/raw/main/mcp/dist/quips-voiceover-mcp-1.0.0.mcpb) 双击安装（Claude Desktop 扩展，会提示填写 API Key；需本机 Python 3.9+）。
 
 ### Cursor（`~/.cursor/mcp.json` 或项目 `.cursor/mcp.json`）
 ```json

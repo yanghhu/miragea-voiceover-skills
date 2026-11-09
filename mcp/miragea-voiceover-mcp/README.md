@@ -58,7 +58,7 @@
   }
 }
 ```
-Or download `miragea-voiceover-mcp-1.0.0.mcpb` from Releases and open it to install as a Claude Desktop extension (it asks for the API key).
+Or download [`mcp/dist/miragea-voiceover-mcp-1.0.0.mcpb`](https://github.com/yanghhu/miragea-voiceover-skills/raw/main/mcp/dist/miragea-voiceover-mcp-1.0.0.mcpb) and open it to install as a Claude Desktop extension (it asks for the API key; needs Python 3.9+).
 
 ### Cursor (`~/.cursor/mcp.json` or `.cursor/mcp.json`)
 ```json

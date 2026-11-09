@@ -14,7 +14,7 @@
     {
       "registryType": "mcpb",
       "identifier": "https://github.com/yanghhu/miragea-voiceover-skills/releases/download/quips-voiceover-mcp-v1.0.0/quips-voiceover-mcp-1.0.0.mcpb",
-      "fileSha256": "c203a3f98f96d162ff8d2cf189b4be7bef0fc9ef8a24b34d406aad93a8c34fc8",
+      "fileSha256": "4cb110a0dceac481e3c58d768c5a19657f0d4f449eced4379c376e25348e0f1e",
       "transport": {
         "type": "stdio"
       },

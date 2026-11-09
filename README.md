@@ -103,7 +103,7 @@ Besides the skills, the repo ships two **MCP servers** (stdio, Python 3.9+ stdli
 ```
 
 - 国内版把 `miragea` 换成 `quips`、环境变量换成 `QUIPS_API_KEY`。离线试跑：`python3 mcp/<名称>/<包名>/server.py --self-test`（无需 Key，不联网）。
-- Claude Desktop 扩展包（`.mcpb`）见 Releases；WorkBuddy / CodeBuddy / Claude Code 可把本仓库添加为插件市场：`/plugin marketplace add yanghhu/miragea-voiceover-skills`，安装 `quips-voiceover-mcp` 或 `miragea-voiceover-mcp` 插件。
+- Claude Desktop 扩展包（`.mcpb`）在 `mcp/dist/`；WorkBuddy / CodeBuddy / Claude Code 可把本仓库添加为插件市场：`/plugin marketplace add yanghhu/miragea-voiceover-skills`，安装 `quips-voiceover-mcp` 或 `miragea-voiceover-mcp` 插件。
 - WorkBuddy 手动配置：写入 `~/.workbuddy/mcp.json`（格式同上），在连接器管理里点“信任”。
 
 ## 合规 · Responsible use

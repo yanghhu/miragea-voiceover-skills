@@ -14,7 +14,7 @@
     {
       "registryType": "mcpb",
       "identifier": "https://github.com/yanghhu/miragea-voiceover-skills/releases/download/miragea-voiceover-mcp-v1.0.0/miragea-voiceover-mcp-1.0.0.mcpb",
-      "fileSha256": "8d6aa390477013372d56fb249eeff5ebb674080e8012ee6097a1ff734a88fd69",
+      "fileSha256": "17591b3ca548a2ee4fa8a16fc208fa7e58d1652ce84dedfd9fff2a643e8a23c9",
       "transport": {
         "type": "stdio"
       },
