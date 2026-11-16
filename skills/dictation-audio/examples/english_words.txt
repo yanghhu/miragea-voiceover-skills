@@ -1,0 +1,8 @@
+# 英语单词听写示例（原创词表）
+== Unit 1 ==
+apple | 苹果
+library | 图书馆
+different | 不同的
+== Unit 2 ==
+tomorrow | 明天
+beautiful | 美丽的
