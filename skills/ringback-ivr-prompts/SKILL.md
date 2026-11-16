@@ -3,7 +3,7 @@ name: "ringback-ivr-prompts"
 description: "彩铃制作、企业彩铃、IVR语音导航、电话提示音技能：把欢迎语、按键菜单（“咨询请按1，人工服务请按0”）、排队提示、下班留言、节假日通知等话术按 `id: 文本` 一行一条写好，用 Miragea 账号里你自己的克隆音色批量生成，按 id 命名输出电话系统常用格式：8000 / 16000 Hz 单声道，16 位 PCM 或 8 位 G.711 A-law / μ-law WAV，同时保留 24 kHz 高清母版和 prompts.csv 清单；可把指定几条拼成彩铃并按秒数循环，附 inspect 命令核对文件格式。适用于企业总机、客服中心、门店电话、呼叫中心。需要 API Key；本地只用 Python 3.9+ 标准库，无需显卡，可 --dry-run 离线试跑。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。Ringback tone, IVR prompts, phone menu, call center voice prompts, G.711."
 version: "1.0.0"
 display_name: "彩铃制作｜企业彩铃·IVR语音导航·电话提示音"
-display_name_en: "Ringback Tone Maker · IVR Phone Menu Prompts · Call Center Voice Prompts"
+display_name_en: "Ringback Tone Maker · IVR Phone Menu · Call Prompts"
 description_zh: "彩铃制作：企业彩铃和IVR语音导航一次做好，欢迎语、按键菜单等话术一行一条，用你自己的克隆音色批量生成电话提示音，导出8k/16k、PCM或A-law格式，拼出循环彩铃，可离线试跑。"
 description_en: "Make company ringback tones and IVR phone-menu prompts: write the welcome, key menu and after-hours messages one per line, voice them in batch with your own cloned voice, export telephone formats (8/16 kHz, 16-bit PCM or G.711 A-law/mu-law) and join selected prompts into a ringback track."
 metadata:

@@ -3,7 +3,7 @@ name: "jiaomai-shout-recording"
 description: "叫卖录音、喊话录音、店铺促销广播技能：把地摊清仓、水果摊、早餐铺、门店促销、超市闭店广播、旧物回收等叫卖词一行一句写好，用 Miragea 账号里你自己的克隆音色生成响亮清晰的喊话录音，输出单遍 single.wav 和自动循环到指定时长（默认 10 分钟）的 loop.wav，可在每遍前加“叮咚”提示音，峰值归一更响亮，支持每句语气标签和语速；附 6 个原创场景模板，ffmpeg 一条命令转 MP3 拷进喇叭、扩音器、喊话器。需要 API Key；本地只用 Python 3.9+ 标准库，无需显卡，可 --dry-run 离线试跑。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。Hawker shout recording, shop announcement, promo broadcast, loudspeaker loop."
 version: "1.0.0"
 display_name: "叫卖录音｜地摊叫卖·喊话录音·店铺促销广播"
-display_name_en: "Hawker Shout Recording · Street Stall Calls · Shop Promo Announcements"
+display_name_en: "Hawker Shout Recording · Stall Calls · Shop Announcements"
 description_zh: "叫卖录音制作：输入地摊、水果摊、门店促销或超市广播的叫卖词，用你自己的克隆音色生成响亮清晰的喊话录音，自动循环成10分钟等长音频，可加叮咚提示音，导出给喇叭和扩音器播放，可离线试跑。"
 description_en: "Make hawker / shop announcement recordings: type the slogans for a street stall, fruit stand, shop promotion or supermarket announcement, voice them with your own cloned voice, and get a loud single pass plus a ready-to-loop 10-minute track (optional ding-dong chime) for loudspeakers and megaphones."
 metadata:

@@ -3,7 +3,7 @@ name: "dictation-audio"
 description: "听写音频、单词听写、英语单词朗读、词语听写技能：老师或家长把语文词语、英语单词或句子一行一个写好（可写 `apple | 苹果`），自动播报“第1个 / Number one”，每个词读 1–5 遍、遍间停顿、留出可调的书写时间，用 Miragea 账号里你自己的克隆音色生成整段 dictation.wav；支持只读中文意思写英文（英汉互译听写）、按单元分节、按种子打乱顺序，同时输出按播放顺序编号的 answer_key.txt 答案和 LRC / SRT 时间轴。适用于课堂听写、家庭作业、单词复习、考前默写。需要 API Key；本地只用 Python 3.9+ 标准库，无需显卡，可 --dry-run 离线试跑。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。Dictation audio, spelling test, word list audio, English vocabulary."
 version: "1.0.0"
 display_name: "听写音频｜单词听写·英语单词朗读·词语听写"
-display_name_en: "Dictation Audio Maker · English Word Dictation · Chinese Word Dictation"
+display_name_en: "Dictation Audio · English Words · Chinese Words"
 description_zh: "听写音频一键生成：把语文词语或英语单词表一行一个写好，自动编号、每词读两遍、留出书写时间，用老师或家长自己的克隆音色生成整段听写音频，附答案和LRC字幕，可打乱顺序，可离线试跑。"
 description_en: "Generate dictation audio from a word list: numbered items, each read twice with writing time, voiced with the teacher's or parent's own cloned voice, plus an answer key and LRC timeline. Chinese words, English words (or English-Chinese meaning), sentences; optional shuffle."
 metadata:

@@ -3,7 +3,7 @@ name: "ai-audiobook-maker"
 description: "AI有声书、有声书制作、小说转有声书技能：把整本小说或长篇 TXT（UTF-8 / GBK 自动识别）交给它，自动识别“第X章 / 第X回 / 卷 / 序章 / Chapter / # 标题”等章节，用 Miragea 账号里你自己的克隆音色逐章配音，每章输出一个 WAV 音频和 SRT、LRC 字幕，并生成 playlist.m3u 播放列表和 chapters.json 章节表；引号里的对白可以换第二个音色，超长句自动在标点处切短，按句缓存、断点续跑，只重配改过的句子。适用于网文作者、有声书主播、自媒体做长音频和睡前听书。需要 API Key；本地只用 Python 3.9+ 标准库，无需显卡，可 --dry-run 离线试跑。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。AI audiobook maker, novel to audiobook, chapter narration, LRC subtitles."
 version: "1.0.0"
 display_name: "AI有声书｜有声书制作·小说转有声书·分章节配音"
-display_name_en: "AI Audiobook Maker · Novel to Audiobook · Chapter-by-Chapter Narration"
+display_name_en: "AI Audiobook Maker · Novel to Audiobook · Chapter Audio"
 description_zh: "AI有声书制作：把小说或长篇TXT自动识别章节，用你自己的克隆音色逐章配音，每章输出一个音频和LRC歌词字幕，生成播放列表；对白可换第二个音色，断点续跑，本地无需显卡，可离线试跑。"
 description_en: "Turn a novel or any long TXT into an audiobook: chapters are detected automatically and each one is narrated with your own cloned voice into its own audio file with SRT/LRC subtitles and an M3U playlist. Optional second voice for quoted dialogue, resumable, no GPU."
 metadata:
