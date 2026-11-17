@@ -1,13 +1,13 @@
 ---
 name: "ai-podcast-voiceover"
-description: "AI播客、播客配音、双人对谈播客技能：把文章、读书笔记、公众号文章或写好的对谈稿，整理成适合“听”的播客稿，单人主播或两位主持人各用一个音色，逐句配音并拼成整期节目 WAV，同时输出 SRT 字幕和逐句时间轴；再用 shownotes.py 根据稿件里的 `## 章节` 自动生成带时间戳的节目章节（chapters.txt / chapters.json）和完整文字稿 shownotes.md，可直接贴到小宇宙、喜马拉雅、Apple Podcasts 等平台的节目简介。改一句只重配一句。可用账号里的角色或本人授权的参考音频声音。由 Miragea 开放 API 生成语音，本地只需 Python 3.9+ 标准库、无需显卡，可 --dry-run 离线试跑；计费与限额以 capabilities 实时返回为准。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。AI podcast, podcast voiceover, two-host dialogue, show notes, chapters."
-version: "1.0.0"
+description: "AI播客、播客配音、双人对谈播客技能：把文章、读书笔记、公众号文章或写好的对谈稿，整理成适合“听”的播客稿，单人主播或两位主持人各用一个音色，逐句配音并拼成整期节目 WAV，同时输出 SRT 字幕和逐句时间轴；再用 shownotes.py 根据稿件里的 `## 章节` 自动生成带时间戳的节目章节（chapters.txt / chapters.json）和完整文字稿 shownotes.md，可直接贴到小宇宙、喜马拉雅、Apple Podcasts 等平台的节目简介。改一句只重配一句。可用账号里的角色，或用本人授权录音创建的角色。由 Miragea 开放 API 生成语音，本地只需 Python 3.9+ 标准库、无需显卡，可 --dry-run 离线试跑；计费与限额以 capabilities 实时返回为准。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。AI podcast, podcast voiceover, two-host dialogue, show notes, chapters."
+version: "1.1.0"
 display_name: "AI播客｜播客配音·双人对谈·节目章节"
 display_name_en: "AI Podcast · Solo or Two-Host Episode Voiceover"
 description_zh: "AI播客：把文章、笔记或对谈稿做成单人或双人播客音频，逐句配音拼成整期节目，同时输出SRT字幕、带时间戳的章节列表和节目文字稿，适合知识分享、公众号音频版和品牌播客，本地无需显卡。"
 description_en: "AI podcast: turn an article, notes or a dialogue script into a solo or two-host episode, with SRT subtitles, timestamped chapters and a transcript for show notes. Python stdlib only, no GPU."
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   author: "Miragea"
   homepage: "https://miragea.ai"
   requires: "Python 3.9+（仅标准库，无需显卡）, MIRAGEA_API_KEY"
@@ -38,7 +38,7 @@ AI播客 = 播客稿（单人或双人，`## 章节` 分段）→ `voiceover.py 
 | 项目 | 说明 |
 |---|---|
 | 输出文件 | `voiceover.wav`（整段配音）、`voiceover.srt`（带时间轴字幕）、`manifest.json`（每句说话人、文本、起止秒数）、`lines/`（每句音频，改稿时复用） |
-| 音色来源 | 账号里已有的角色 `actor_id=`（用 `actors` 查询），或服务端能直接访问的参考音频 URL `ref=` + 音频里实际说的话 `ref_text=`（声音克隆） |
+| 音色来源 | 账号里的角色：`voice=角色名称` 或 `actor_id=角色ID`（用 `actors` 查询）；还没有角色时，用本人或已获授权的录音 `create-actor` 创建私有角色（声音克隆），之后每次都用这个角色配音 |
 | 生成模式 | `expressive`（客户端「默认」）/ `standard`（客户端「更像」）；省略时用服务端默认，以 `capabilities` 实时返回为准 |
 | 语气标签 | `tags=标签名`，取 `capabilities` 里所选模式的 `tags[].label` |
 | 语速 | `speed=` 0.25–4，1 为正常语速，按角色设置 |
@@ -67,10 +67,12 @@ AI播客 = 播客稿（单人或双人，`## 章节` 分段）→ `voiceover.py 
 python3 scripts/voiceover.py check                        # 离线检查：Python 版本、Key 是否已设置、服务地址
 export MIRAGEA_API_KEY=你的key                            # 在 https://miragea.ai/workspace/api 生成，只放环境变量
 python3 scripts/miragea_audio.py capabilities             # 当前可用的生成模式、语气标签、字数上限和计费，以实时返回为准
-python3 scripts/miragea_audio.py actors --limit 20        # 账号里已有的角色和 actor_id（has_more 为真时加 --offset 翻页）
+python3 scripts/miragea_audio.py actors --limit 20        # 账号里已有的角色名称和 actor_id（has_more 为真时加 --offset 翻页）
+python3 scripts/miragea_audio.py create-actor --file 我的录音.wav --name 我的声音 --language zh   # 还没有角色：用本人或已获授权的录音创建私有角色（按账号规则计费）
 ```
 
 - Default API root is `https://miragea.ai/v1`; set `MIRAGEA_BASE_URL` (including `/v1`) only for a private deployment.
+- 接口只按账号里的角色配音（官方客户端 1.3.0）：稿件里给每个角色写 `voice=角色名称` 或 `actor_id=角色ID`，也可以命令行加 `--voice 角色名称` 统一指定。旧版用音频链接直接克隆的写法服务端已停用，旧稿件改成角色写法即可。
 - 不要把 Key 贴进聊天或写进文件。没有 Key 时先用 `--dry-run` 跑通流程。
 
 ```bash
@@ -83,7 +85,7 @@ python3 scripts/shownotes.py 本期稿件.md out --title "第12期：为什么�
 
 ```bash
 # 单句试听（官方客户端；--output 不会覆盖已有文件，换个新文件名）
-python3 scripts/miragea_audio.py generate --text '开头第一句' --actor-id ACTOR_ID --wait --output test1.mp3
+python3 scripts/miragea_audio.py generate --text '开头第一句' --actor-name 我的声音 --wait --output test1.mp3
 ```
 
 ## 你说什么 → Agent 执行
@@ -96,7 +98,7 @@ python3 scripts/miragea_audio.py generate --text '开头第一句' --actor-id AC
 | “前面要加 8 秒片头音乐” | 生成后用 ffmpeg 混音（见下方），`shownotes.py ... --offset 8` 让时间戳对上 |
 | “这句口误了” | 只改那一行重跑 `script`，其余句子复用缓存，再跑一次 `shownotes.py` |
 | “主持人 B 说话快一点” | 在稿件开头给 B 设 `speed=1.1` |
-| “用我自己的声音当主播” | `ref=参考音频URL ref_text="原话"` 或账号里已复刻的 `actor_id=` |
+| “用我自己的声音当主播” | 用你的录音 `create-actor` 建角色，稿件写 `voice=角色名称`（或 `actor_id=`） |
 | “先别调用接口” | `script ... --dry-run`，`shownotes.py` 同样可用来检查章节 |
 
 ## AI播客写稿方法
@@ -161,7 +163,7 @@ python3 scripts/miragea_audio.py generate --text '开头第一句' --actor-id AC
 [小林] 我们下期见。
 ```
 
-试跑：`python3 scripts/voiceover.py script examples/example.md -o out --gap 0.35 --dry-run && python3 scripts/shownotes.py examples/example.md out --title "示例节目"`
+试跑：先 `python3 scripts/voiceover.py script examples/example.md -o out --gap 0.35 --dry-run`，再 `python3 scripts/shownotes.py examples/example.md out --title "示例节目"`
 
 ## 接入剪辑与发布
 
@@ -192,7 +194,7 @@ ffmpeg -loop 1 -i cover.png -i out/voiceover.wav -vf subtitles=out/voiceover.srt
 ## 常见问题（FAQ）
 
 **AI播客可以做两个人对话吗？**
-可以。稿件开头给两位主持人各定一个音色（账号里的角色或授权的参考音频），正文用 `[名字]` 标记谁在说，一条命令生成整期对谈。
+可以。稿件开头给两位主持人各定一个音色（账号里的角色，可用各自授权录音创建），正文用 `[名字]` 标记谁在说，一条命令生成整期对谈。
 
 **文章转播客，Agent 会帮我改稿吗？**
 会。Agent 按“写给耳朵”的方法把文章改写成口语播客稿给你确认；改写由 Agent 完成，语音由接口生成。
@@ -207,7 +209,7 @@ ffmpeg -loop 1 -i cover.png -i out/voiceover.wav -vf subtitles=out/voiceover.srt
 不用。只改那一行重跑，其余句子从 `out/lines/` 缓存复用，然后再跑一次 `shownotes.py` 更新时间轴。
 
 **可以用我自己的声音做播客吗？**
-可以，用本人参考音频 URL 和其中原话（`ref=` + `ref_text=`），或在服务方客户端复刻成角色后用 `actor_id=`。只用本人或已授权的声音。
+可以，用本人录音 `create-actor` 创建私有角色（或在网站复刻成角色），稿件写 `voice=角色名称` 或 `actor_id=`。只用本人或已授权的声音。
 
 **AI播客能加背景音乐吗？**
 本技能输出干净人声；背景音乐和片头片尾用 ffmpeg 或剪辑软件混音，时间戳用 `--offset` 对齐。
@@ -217,10 +219,10 @@ ffmpeg -loop 1 -i cover.png -i out/voiceover.wav -vf subtitles=out/voiceover.srt
 
 ## 稿件语法
 
-- 开头 `---` 之间每行定义一个角色：`角色名: actor_id=角色ID` 或 `角色名: ref=参考音频URL ref_text="参考音频里实际说的话"`；可加 `speed=`（0.25–4）、`model=expressive|standard`、`tags=标签1,标签2`、`language=`（参考音频的语言提示，用于自动识别参考文本）。
-- `ref_text=` 只和 `ref=` 一起用；省略时服务端自动识别参考文本，计费方式不同，以 `capabilities` 为准。
+- 开头 `---` 之间每行定义一个角色：`角色名: voice=角色名称` 或 `角色名: actor_id=角色ID`（名称须和 `actors` 列表完全一致，有同名角色时改用 actor_id）；可加 `speed=`（0.25–4）、`model=expressive|standard`、`tags=标签1,标签2`、`language=`（文本语言提示）。
+- 稿件里没写音色的角色，用命令行 `--voice 角色名称` 或 `--actor-id 角色ID` 统一指定。音色由服务端从角色样本读取，不再需要提供录音链接和原话。
 - 正文 `[角色] 台词` 或 `[角色]：台词`；不写标签沿用上一位说话人。
-- `[pause 0.6]` / `[停顿 0.6]` 插入停顿（秒）；`#` 开头的行、空行和 `<!-- 注释 -->` 会被忽略。
+- `[pause 0.6]` / `[停顿 0.6]` 插入停顿（秒）；`#` 开头的行和空行会被忽略。
 - 单句超过 `capabilities` 里的 `audio.max_text_length` 会被接口拒绝，拆成短句即可。
 - 每句音频缓存在 `out/lines/`，同一句同一设置再次运行直接复用；没缓存时用同一个幂等键提交，服务端返回原任务、不重复创建。要新的一版加 `--fresh`。
 
@@ -229,7 +231,9 @@ ffmpeg -loop 1 -i cover.png -i out/voiceover.wav -vf subtitles=out/voiceover.srt
 | 现象 | 处理 |
 |---|---|
 | `missing_api_key` / `MIRAGEA_API_KEY is not set` | 生成 Key 后 `export MIRAGEA_API_KEY=...`；或先加 `--dry-run` |
-| `speakers without a voice` | 给该角色补 `actor_id=` 或 `ref=` |
+| `speakers without a voice` | 给该角色补 `voice=角色名称` 或 `actor_id=`，或加 `--voice 角色名称`；还没有角色先 `create-actor` |
+| `actor_not_found` / `ambiguous_actor_name` | `voice=` 的名称要和 `actors` 列表完全一致；同名角色改用 `actor_id=` |
+| `no longer supported` | 旧稿件用了已停用的音频链接克隆写法：把录音 `create-actor` 建成角色，再改成 `voice=` 或 `actor_id=` |
 | 401 | 检查 Key；不要把 Key 写进日志 |
 | 403 | 检查账号的 API 访问权限 |
 | 400 / 413 | 修正参数：模式、标签、语速、单句字数；或减小上传文件、缩短媒体 |
@@ -245,11 +249,11 @@ ffmpeg -loop 1 -i cover.png -i out/voiceover.wav -vf subtitles=out/voiceover.srt
 - 只克隆你本人或已获得明确授权的声音，不模仿明星、主播、公众人物或任何未授权的人。
 - 按《人工智能生成合成内容标识办法》和抖音、快手、视频号、小红书、B站等平台规则，发布时声明或标注 AI 生成内容。
 - 把别人的文章做成播客前取得作者授权或确认可转载；节目里引用的音乐、片段须有授权。
-- `scripts/miragea_audio.py` is the official client, shipped unchanged；`scripts/voiceover.py`（稿件拼接层）为原创，MIT 许可（见 `LICENSE.txt`）。配音与字幕能力由 Miragea 开放 API 提供。
+- `scripts/miragea_audio.py` is the official client 1.3.0, shipped unchanged；`scripts/voiceover.py`（稿件拼接层）为原创，MIT 许可（见 `LICENSE.txt`）。配音与字幕能力由 Miragea 开放 API 提供。
 
 ## English Summary
 
-- **AI podcast (AI播客)**: turn an article, notes or a dialogue script into a solo or two-host episode; each host gets a voice (account actor or an authorised reference audio).
+- **AI podcast (AI播客)**: turn an article, notes or a dialogue script into a solo or two-host episode; each host gets a voice (a role in your account, created from an authorised recording).
 - `voiceover.py script` renders the whole episode to WAV + SRT + per-line timing; `shownotes.py` turns the script's `## chapter` lines into timestamped `chapters.txt` / `chapters.json` and a full transcript `shownotes.md`.
 - Fix one line, re-render one line. Pricing and limits come live from `capabilities`. Python 3.9+ stdlib, no GPU. Service: Miragea API (https://miragea.ai/v1).
 

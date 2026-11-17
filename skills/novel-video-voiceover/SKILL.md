@@ -1,13 +1,13 @@
 ---
 name: "novel-video-voiceover"
-description: "小说推文配音、有声书配音、多角色配音技能：把小说推文文案、网文章节、故事、广播剧剧本按旁白和角色分配不同音色，一键生成整段配音 WAV、带角色名的 SRT 字幕和逐句时间轴 manifest.json，直接配画面做小说推文视频；段落、场景、章节停顿可控。适合小说推文号、故事号、网文作者有声化、睡前故事和广播剧小样。音色可用账号已有角色或参考音频声音克隆，固定旁白声线；语气标签和语速可调；改一句只重配一句。由 Miragea 开放 API 生成，本地只需 Python 3.9+ 标准库、无需显卡，可 --dry-run 离线试跑。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。Novel video voiceover, audiobook narration, multi-voice, SRT subtitles."
-version: "1.0.0"
+description: "小说推文配音、有声书配音、多角色配音技能：把小说推文文案、网文章节、故事、广播剧剧本按旁白和角色分配不同音色，一键生成整段配音 WAV、带角色名的 SRT 字幕和逐句时间轴 manifest.json，直接配画面做小说推文视频；段落、场景、章节停顿可控。适合小说推文号、故事号、网文作者有声化、睡前故事和广播剧小样。音色用账号里的角色（可用本人授权录音创建），固定旁白声线；语气标签和语速可调；改一句只重配一句。由 Miragea 开放 API 生成，本地只需 Python 3.9+ 标准库、无需显卡，可 --dry-run 离线试跑。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。Novel video voiceover, audiobook narration, multi-voice, SRT subtitles."
+version: "1.1.0"
 display_name: "小说推文配音｜有声书配音·多角色配音·字幕"
-display_name_en: "Novel Video & Audiobook Multi-Voice Voiceover"
+display_name_en: "Novel Video and Audiobook Multi-Voice Voiceover"
 description_zh: "小说推文配音：小说推文视频的旁白和角色台词各用不同音色，一键生成整段AI配音WAV和带角色名的SRT字幕；也能做有声书配音、多角色配音和故事号，支持声音克隆，本地无需显卡。"
 description_en: "Voiceover for novel promo videos and audiobooks: narrator and each character in a different voice, full-length WAV plus speaker-labelled SRT subtitles and timing. Voice cloning, no GPU."
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   author: "Miragea"
   homepage: "https://miragea.ai"
   requires: "Python 3.9+（仅标准库，无需显卡）, MIRAGEA_API_KEY"
@@ -37,7 +37,7 @@ metadata:
 | 项目 | 说明 |
 |---|---|
 | 输出文件 | `voiceover.wav`（整段配音）、`voiceover.srt`（带时间轴字幕）、`manifest.json`（每句说话人、文本、起止秒数）、`lines/`（每句音频，改稿时复用） |
-| 音色来源 | 账号里已有的角色 `actor_id=`（用 `actors` 查询），或服务端能直接访问的参考音频 URL `ref=` + 音频里实际说的话 `ref_text=`（声音克隆） |
+| 音色来源 | 账号里的角色：`voice=角色名称` 或 `actor_id=角色ID`（用 `actors` 查询）；还没有角色时，用本人或已获授权的录音 `create-actor` 创建私有角色（声音克隆），之后每次都用这个角色配音 |
 | 生成模式 | `expressive`（客户端「默认」）/ `standard`（客户端「更像」）；省略时用服务端默认，以 `capabilities` 实时返回为准 |
 | 语气标签 | `tags=标签名`，取 `capabilities` 里所选模式的 `tags[].label` |
 | 语速 | `speed=` 0.25–4，1 为正常语速，按角色设置 |
@@ -57,10 +57,12 @@ metadata:
 python3 scripts/voiceover.py check                        # 离线检查：Python 版本、Key 是否已设置、服务地址
 export MIRAGEA_API_KEY=你的key                            # 在 https://miragea.ai/workspace/api 生成，只放环境变量
 python3 scripts/miragea_audio.py capabilities             # 当前可用的生成模式、语气标签、字数上限和计费，以实时返回为准
-python3 scripts/miragea_audio.py actors --limit 20        # 账号里已有的角色和 actor_id（has_more 为真时加 --offset 翻页）
+python3 scripts/miragea_audio.py actors --limit 20        # 账号里已有的角色名称和 actor_id（has_more 为真时加 --offset 翻页）
+python3 scripts/miragea_audio.py create-actor --file 我的录音.wav --name 我的声音 --language zh   # 还没有角色：用本人或已获授权的录音创建私有角色（按账号规则计费）
 ```
 
 - Default API root is `https://miragea.ai/v1`; set `MIRAGEA_BASE_URL` (including `/v1`) only for a private deployment.
+- 接口只按账号里的角色配音（官方客户端 1.3.0）：稿件里给每个角色写 `voice=角色名称` 或 `actor_id=角色ID`，也可以命令行加 `--voice 角色名称` 统一指定。旧版用音频链接直接克隆的写法服务端已停用，旧稿件改成角色写法即可。
 - 不要把 Key 贴进聊天或写进文件。没有 Key 时先用 `--dry-run` 跑通流程。
 
 ```bash
@@ -70,7 +72,7 @@ python3 scripts/voiceover.py script 你的稿件.md -o out --preset youshengshu 
 
 ```bash
 # 单句试听（官方客户端；--output 不会覆盖已有文件，换个新文件名）
-python3 scripts/miragea_audio.py generate --text '开头第一句' --actor-id ACTOR_ID --wait --output test1.mp3
+python3 scripts/miragea_audio.py generate --text '开头第一句' --actor-name 我的声音 --wait --output test1.mp3
 ```
 
 `--preset youshengshu` 会给字幕加上角色名（如 `xiaoyu: 张爷爷……`）；小说推文竖屏视频建议再加 `--max-chars 14 --gap 0.3`。
@@ -81,7 +83,7 @@ python3 scripts/miragea_audio.py generate --text '开头第一句' --actor-id AC
 |---|---|
 | “把这篇小说推文配成音频” | 按下方方法改写成推文稿、拆旁白和对白 → `script 推文.md -o out --preset youshengshu --max-chars 14 --gap 0.3` |
 | “每个角色一个声音” | front matter 为旁白和每个主要角色各定义一个音色 |
-| “旁白用我自己的声音” | 你已复刻角色的 actor_id，或参考音频 `ref=` + `ref_text=`，填给 `narrator` |
+| “旁白用我自己的声音” | 你已复刻或用录音 `create-actor` 创建的角色，`voice=角色名称` 填给 `narrator` |
 | “字幕不要角色名” | 不用预设，手动 `--gap 0.4 --max-chars 14`（不加 `--speaker-labels`） |
 | “整本书二十章做有声书” | 一章一个文件，循环生成到 `out/ch01` … `out/ch20`，用 `--preset youshengshu` |
 | “睡前故事，讲慢一点” | `narrator` 设 `speed=0.85–0.9`，段落停顿加长 |
@@ -244,7 +246,7 @@ ffmpeg -i out/ch01/voiceover.wav -codec:a libmp3lame -q:a 2 ch01.mp3
 需要版权方或推文平台授权。可以放心使用的是公版作品、你自己的原创，或已获授权的作品。
 
 **有声书配音的旁白能用我自己的声音吗？**
-可以，用你已复刻的角色或参考音频克隆，填给 `narrator`，整本书都用它。
+可以，用你已复刻或用本人录音 `create-actor` 创建的角色，`voice=角色名称` 填给 `narrator`，整本书都用它。
 
 **有声书配音几十章怎么批量生成？**
 一章一个稿件文件，循环调用 `script` 输出到各自目录；修改某章时只有改过的句子会重新生成。
@@ -266,10 +268,10 @@ ffmpeg -i out/ch01/voiceover.wav -codec:a libmp3lame -q:a 2 ch01.mp3
 
 ## 稿件语法
 
-- 开头 `---` 之间每行定义一个角色：`角色名: actor_id=角色ID` 或 `角色名: ref=参考音频URL ref_text="参考音频里实际说的话"`；可加 `speed=`（0.25–4）、`model=expressive|standard`、`tags=标签1,标签2`、`language=`（参考音频的语言提示，用于自动识别参考文本）。
-- `ref_text=` 只和 `ref=` 一起用；省略时服务端自动识别参考文本，计费方式不同，以 `capabilities` 为准。
+- 开头 `---` 之间每行定义一个角色：`角色名: voice=角色名称` 或 `角色名: actor_id=角色ID`（名称须和 `actors` 列表完全一致，有同名角色时改用 actor_id）；可加 `speed=`（0.25–4）、`model=expressive|standard`、`tags=标签1,标签2`、`language=`（文本语言提示）。
+- 稿件里没写音色的角色，用命令行 `--voice 角色名称` 或 `--actor-id 角色ID` 统一指定。音色由服务端从角色样本读取，不再需要提供录音链接和原话。
 - 正文 `[角色] 台词` 或 `[角色]：台词`；不写标签沿用上一位说话人。
-- `[pause 0.6]` / `[停顿 0.6]` 插入停顿（秒）；`#` 开头的行、空行和 `<!-- 注释 -->` 会被忽略。
+- `[pause 0.6]` / `[停顿 0.6]` 插入停顿（秒）；`#` 开头的行和空行会被忽略。
 - 单句超过 `capabilities` 里的 `audio.max_text_length` 会被接口拒绝，拆成短句即可。
 - 每句音频缓存在 `out/lines/`，同一句同一设置再次运行直接复用；没缓存时用同一个幂等键提交，服务端返回原任务、不重复创建。要新的一版加 `--fresh`。
 
@@ -278,7 +280,9 @@ ffmpeg -i out/ch01/voiceover.wav -codec:a libmp3lame -q:a 2 ch01.mp3
 | 现象 | 处理 |
 |---|---|
 | `missing_api_key` / `MIRAGEA_API_KEY is not set` | 生成 Key 后 `export MIRAGEA_API_KEY=...`；或先加 `--dry-run` |
-| `speakers without a voice` | 给该角色补 `actor_id=` 或 `ref=` |
+| `speakers without a voice` | 给该角色补 `voice=角色名称` 或 `actor_id=`，或加 `--voice 角色名称`；还没有角色先 `create-actor` |
+| `actor_not_found` / `ambiguous_actor_name` | `voice=` 的名称要和 `actors` 列表完全一致；同名角色改用 `actor_id=` |
+| `no longer supported` | 旧稿件用了已停用的音频链接克隆写法：把录音 `create-actor` 建成角色，再改成 `voice=` 或 `actor_id=` |
 | 401 | 检查 Key；不要把 Key 写进日志 |
 | 403 | 检查账号的 API 访问权限 |
 | 400 / 413 | 修正参数：模式、标签、语速、单句字数；或减小上传文件、缩短媒体 |
@@ -294,13 +298,13 @@ ffmpeg -i out/ch01/voiceover.wav -codec:a libmp3lame -q:a 2 ch01.mp3
 - 只克隆你本人或已获得明确授权的声音，不模仿明星、主播、公众人物或任何未授权的人。
 - 按《人工智能生成合成内容标识办法》和抖音、快手、视频号、小红书、B站等平台规则，发布时声明或标注 AI 生成内容。
 - 小说推文和有声书涉及作品改编权、信息网络传播权：只用公版作品、你自己的原创，或已获得版权方 / 推文平台授权的作品。
-- `scripts/miragea_audio.py` is the official client, shipped unchanged；`scripts/voiceover.py`（稿件拼接层）为原创，MIT 许可（见 `LICENSE.txt`）。配音与字幕能力由 Miragea 开放 API 提供。
+- `scripts/miragea_audio.py` is the official client 1.3.0, shipped unchanged；`scripts/voiceover.py`（稿件拼接层）为原创，MIT 许可（见 `LICENSE.txt`）。配音与字幕能力由 Miragea 开放 API 提供。
 
 ## English Summary
 
-- **Novel video & audiobook voiceover (小说推文配音 / 有声书配音)**: narrator plus one voice per character, rendered into one WAV.
+- **Novel video and audiobook voiceover (小说推文配音 / 有声书配音)**: narrator plus one voice per character, rendered into one WAV.
 - Speaker-labelled **SRT subtitles** and per-line timing for novel promo videos; paragraph, scene and chapter pauses.
-- Voices from your account (`actor_id`) or **voice cloning** from a reference clip for a consistent narrator. `--preset youshengshu` = 0.5 s gaps, 20-character cues, speaker labels on.
+- Voices are roles in your account (`voice=NAME` / `actor_id`); **voice cloning** = create a private role from your own recording, for a consistent narrator. `--preset youshengshu` = 0.5 s gaps, 20-character cues, speaker labels on.
 - Python 3.9+ stdlib, no GPU, `--dry-run` offline. Service: Miragea API (https://miragea.ai/v1).
 
 **关键词**：小说推文配音、有声书配音、多角色配音、小说推文、小说配音、AI有声书、有声小说、小说推文视频、AI朗读、广播剧配音、故事配音、AI配音、声音克隆、字幕生成、SRT、audiobook、narration、text to speech

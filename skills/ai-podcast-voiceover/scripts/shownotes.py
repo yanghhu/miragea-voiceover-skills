@@ -55,12 +55,16 @@ def chapters_from_script(text):
 
 def main(argv=None):
     p = argparse.ArgumentParser(description="voiced podcast script + manifest.json -> shownotes.md, chapters.json, chapters.txt")
-    p.add_argument("--version", action="version", version="shownotes.py 1.0.0")
+    p.add_argument("--version", action="version", version="shownotes.py 1.1.0")
     p.add_argument("script")
     p.add_argument("outdir")
     p.add_argument("--title", default="")
     p.add_argument("--offset", type=float, default=0.0, help="seconds added to every timestamp (intro music etc.)")
     a = p.parse_args(argv)
+    for path in (a.script, os.path.join(a.outdir, "manifest.json")):
+        if not os.path.isfile(path):
+            sys.stderr.write("错误：找不到文件 %s。先用 voiceover.py script 生成配音（会写出 manifest.json），再运行 shownotes.py。\n" % path)
+            return 2
     with open(a.script, encoding="utf-8") as f:
         marks, spoken = chapters_from_script(f.read())
     with open(os.path.join(a.outdir, "manifest.json"), encoding="utf-8") as f:

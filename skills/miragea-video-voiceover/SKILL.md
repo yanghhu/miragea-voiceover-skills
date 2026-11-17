@@ -1,13 +1,13 @@
 ---
 name: "miragea-video-voiceover"
-description: "AI配音、视频配音、文字转语音（TTS）、声音克隆与字幕生成技能：把口播稿、电影解说稿、小说推文、广告脚本、带货文案、有声书章节写成带 [角色] 标签的稿件，一条命令生成多角色配音 WAV、带时间轴的 SRT 字幕和逐句时间 manifest.json，直接导入剪映 / CapCut / Premiere / ffmpeg。音色可用账号已有角色，也可用参考音频 + 对应文本做声音克隆；支持语气标签、0.25–4 倍语速、停顿控制；已有音频 / 视频可识别成 SRT / TXT / JSON 字幕。内置口播、解说、带货、数字人、广告片、有声书 6 个节奏预设；改一句只重配一句。配音与字幕由 Miragea 开放 API 生成，本地只需 Python 3.9+ 标准库、无需显卡，可 --dry-run 离线试跑。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。AI voiceover, text to speech, voice cloning, multi-speaker dubbing and SRT subtitles."
-version: "1.0.1"
+description: "AI配音、视频配音、文字转语音（TTS）、声音克隆与字幕生成技能：把口播稿、电影解说稿、小说推文、广告脚本、带货文案、有声书章节写成带 [角色] 标签的稿件，一条命令生成多角色配音 WAV、带时间轴的 SRT 字幕和逐句时间 manifest.json，直接导入剪映 / CapCut / Premiere / ffmpeg。音色用账号里的角色，也可以先用本人授权录音创建私有角色（声音克隆）；支持语气标签、0.25–4 倍语速、停顿控制；已有音频 / 视频可识别成 SRT / TXT / JSON 字幕。内置口播、解说、带货、数字人、广告片、有声书 6 个节奏预设；改一句只重配一句。配音与字幕由 Miragea 开放 API 生成，本地只需 Python 3.9+ 标准库、无需显卡，可 --dry-run 离线试跑。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。AI voiceover, text to speech, voice cloning, multi-speaker dubbing and SRT subtitles."
+version: "1.1.0"
 display_name: "AI配音｜视频配音·声音克隆·字幕生成"
 display_name_en: "AI Voiceover for Videos · Voice Cloning · Subtitles"
-description_zh: "AI配音技能：口播稿、解说稿、小说推文、广告脚本一键生成多角色视频配音WAV和带时间轴SRT字幕；用参考音频做声音克隆或用账号已有角色，已有音视频也能字幕生成，本地无需显卡。"
-description_en: "AI voiceover for video scripts: talking-head, movie recap, novel videos, ads -> multi-voice voiceover WAV plus timed SRT subtitles. Voice cloning from a reference clip or saved voices, speech-to-subtitles for existing media, no GPU."
+description_zh: "AI配音技能：口播稿、解说稿、小说推文、广告脚本一键生成多角色视频配音WAV和带时间轴SRT字幕；用账号角色或本人录音创建的克隆音色，已有音视频也能字幕生成，本地无需显卡。"
+description_en: "AI voiceover for video scripts: talking-head, movie recap, novel videos, ads -> multi-voice voiceover WAV plus timed SRT subtitles. Voices are roles in your account (clone one from your own recording), speech-to-subtitles for existing media, no GPU."
 metadata:
-  version: "1.0.1"
+  version: "1.1.0"
   author: "Miragea"
   homepage: "https://miragea.ai"
   requires: "Python 3.9+（仅标准库，无需显卡）, MIRAGEA_API_KEY"
@@ -16,7 +16,7 @@ metadata:
 
 # AI配音
 
-「AI配音」是一个把视频文字稿一键生成多角色配音（WAV）和带时间轴 SRT 字幕的 Agent 技能：音色用账号已有角色或参考音频声音克隆，覆盖口播、电影解说、小说推文、带货、广告片和有声书，本地无需显卡。
+「AI配音」是一个把视频文字稿一键生成多角色配音（WAV）和带时间轴 SRT 字幕的 Agent 技能：音色用账号里的角色（可用本人录音创建，即声音克隆），覆盖口播、电影解说、小说推文、带货、广告片和有声书，本地无需显卡。
 
 ## 一句话定义
 
@@ -41,7 +41,7 @@ AI配音 = 一份带 `[角色]` 标签的文字稿 → 整段配音 `voiceover.w
 | 项目 | 说明 |
 |---|---|
 | 输出文件 | `voiceover.wav`（整段配音）、`voiceover.srt`（带时间轴字幕）、`manifest.json`（每句说话人、文本、起止秒数）、`lines/`（每句音频，改稿时复用） |
-| 音色来源 | 账号里已有的角色 `actor_id=`（用 `actors` 查询），或服务端能直接访问的参考音频 URL `ref=` + 音频里实际说的话 `ref_text=`（声音克隆） |
+| 音色来源 | 账号里的角色：`voice=角色名称` 或 `actor_id=角色ID`（用 `actors` 查询）；还没有角色时，用本人或已获授权的录音 `create-actor` 创建私有角色（声音克隆），之后每次都用这个角色配音 |
 | 生成模式 | `expressive`（客户端「默认」）/ `standard`（客户端「更像」）；省略时用服务端默认，以 `capabilities` 实时返回为准 |
 | 语气标签 | `tags=标签名`，取 `capabilities` 里所选模式的 `tags[].label` |
 | 语速 | `speed=` 0.25–4，1 为正常语速，按角色设置 |
@@ -60,7 +60,7 @@ AI配音 = 一份带 `[角色]` 标签的文字稿 → 整段配音 `voiceover.w
 | 能做 | 不做 |
 |---|---|
 | 单人旁白、多角色对白（每个角色一个音色，逐句生成后本地拼接） | 不剪辑画面、不合成视频（输出音轨和字幕，交给剪映 / Premiere / CapCut / ffmpeg） |
-| 账号已有角色（actor_id）或参考音频 URL 声音克隆 | 不克隆未经本人授权的声音 |
+| 账号里的角色（`voice=` 名称或 `actor_id`），可用本人录音 `create-actor` 创建 | 不克隆未经本人授权的声音 |
 | 停顿、每个角色独立语速、生成模式和语气标签 | 不自动写稿（可以让 Agent 按下方方法先写稿） |
 | 音频 / 视频识别成 SRT / TXT / JSON | 不做背景音乐混音、不做翻译（翻译由 Agent 完成） |
 | `--dry-run` 离线试跑全流程 | |
@@ -71,17 +71,19 @@ AI配音 = 一份带 `[角色]` 标签的文字稿 → 整段配音 `voiceover.w
 python3 scripts/voiceover.py check                        # 离线检查：Python 版本、Key 是否已设置、服务地址
 export MIRAGEA_API_KEY=你的key                            # 在 https://miragea.ai/workspace/api 生成，只放环境变量
 python3 scripts/miragea_audio.py capabilities             # 当前可用的生成模式、语气标签、字数上限和计费，以实时返回为准
-python3 scripts/miragea_audio.py actors --limit 20        # 账号里已有的角色和 actor_id（has_more 为真时加 --offset 翻页）
+python3 scripts/miragea_audio.py actors --limit 20        # 账号里已有的角色名称和 actor_id（has_more 为真时加 --offset 翻页）
+python3 scripts/miragea_audio.py create-actor --file 我的录音.wav --name 我的声音 --language zh   # 还没有角色：用本人或已获授权的录音创建私有角色（按账号规则计费）
 ```
 
 - Default API root is `https://miragea.ai/v1`; set `MIRAGEA_BASE_URL` (including `/v1`) only for a private deployment.
+- 接口只按账号里的角色配音（官方客户端 1.3.0）：稿件里给每个角色写 `voice=角色名称` 或 `actor_id=角色ID`，也可以命令行加 `--voice 角色名称` 统一指定。旧版用音频链接直接克隆的写法服务端已停用，旧稿件改成角色写法即可。
 - 不要把 Key 贴进聊天或写进文件。没有 Key 时先用 `--dry-run` 跑通流程。
 
 ```bash
 python3 scripts/voiceover.py script examples/movie-recap.md -o out --dry-run      # 离线试跑示例
 python3 scripts/voiceover.py script 稿件.md -o out --preset koubo                 # 整稿 → out/voiceover.wav + voiceover.srt + manifest.json
 python3 scripts/voiceover.py script 稿件.md -o out --gap 0.3 --max-chars 16 --speaker-labels --model standard
-python3 scripts/miragea_audio.py generate --text '试听一句' --actor-id ACTOR_ID --wait --output test1.mp3
+python3 scripts/miragea_audio.py generate --text '试听一句' --actor-name 我的声音 --wait --output test1.mp3
 python3 scripts/miragea_audio.py recognize --file 成片.mp4 --wait --output 成片.srt
 ```
 
@@ -94,9 +96,9 @@ python3 scripts/miragea_audio.py recognize --file 成片.mp4 --wait --output 成
 |---|---|
 | “把这段口播稿配成音频” | 写入 `稿件.md`（单角色）→ `script 稿件.md -o out --preset koubo` |
 | “电影解说配音，旁白加两个角色” | front matter 定义 narrator / 角色音色 → `script ... --preset jieshuo` |
-| “用我的声音配音” | 用 `actors` 找到你已复刻的角色 actor_id；或给一段服务端能访问的参考音频 URL 和其中的原话 → `ref=` + `ref_text=` |
+| “用我的声音配音” | `actors` 找到你的角色名称，稿件写 `voice=角色名称`；还没有角色就用你的录音 `create-actor` 创建一个 |
 | “语气开心一点” | 查 `capabilities` 里所选模式的标签 → 角色加 `tags=标签名` |
-| “只念一句试听” | `miragea_audio.py generate --text "..." --actor-id ID --wait --output test1.mp3` |
+| “只念一句试听” | `miragea_audio.py generate --text "..." --actor-name 角色名称 --wait --output test1.mp3` |
 | “第五句说错了” | 只改那一行再跑同一条命令，其余句子复用 `out/lines/` |
 | “给这个视频生成字幕” | `miragea_audio.py recognize --file 视频.mp4 --wait --output 视频.srt` |
 | “先别花钱，试一下流程” | `script ... --dry-run` |
@@ -142,7 +144,7 @@ narrator_slow: actor_id=123 speed=0.9
 ### 4. 外语版本怎么做
 
 1. 中文稿定稿后，让 Agent 按目标市场口语改写（不是逐字直译），单位、称呼本地化。
-2. 每种语言一个稿件文件；音色选账号里适合该语言的角色（`actors` 返回每个角色的 `language`），或换成该语言的参考音频 `ref=`，参考音频的语言可用 `language=` 提示。
+2. 每种语言一个稿件文件；音色选账号里适合该语言的角色（`actors` 返回每个角色的 `language`），没有就用该语言的本人授权录音 `create-actor --language` 建一个角色；稿件语言可用 `language=` 提示。
 3. 外语字幕 `--max-chars 40` 左右。
 4. 先单句试听开头和难读的词，请母语者抽听后再整稿生成。
 
@@ -156,10 +158,10 @@ narrator_slow: actor_id=123 speed=0.9
 
 ## 稿件语法
 
-- 开头 `---` 之间每行定义一个角色：`角色名: actor_id=角色ID` 或 `角色名: ref=参考音频URL ref_text="参考音频里实际说的话"`；可加 `speed=`（0.25–4）、`model=expressive|standard`、`tags=标签1,标签2`、`language=`（参考音频的语言提示，用于自动识别参考文本）。
-- `ref_text=` 只和 `ref=` 一起用；省略时服务端自动识别参考文本，计费方式不同，以 `capabilities` 为准。
+- 开头 `---` 之间每行定义一个角色：`角色名: voice=角色名称` 或 `角色名: actor_id=角色ID`（名称须和 `actors` 列表完全一致，有同名角色时改用 actor_id）；可加 `speed=`（0.25–4）、`model=expressive|standard`、`tags=标签1,标签2`、`language=`（文本语言提示）。
+- 稿件里没写音色的角色，用命令行 `--voice 角色名称` 或 `--actor-id 角色ID` 统一指定。音色由服务端从角色样本读取，不再需要提供录音链接和原话。
 - 正文 `[角色] 台词` 或 `[角色]：台词`；不写标签沿用上一位说话人。
-- `[pause 0.6]` / `[停顿 0.6]` 插入停顿（秒）；`#` 开头的行、空行和 `<!-- 注释 -->` 会被忽略。
+- `[pause 0.6]` / `[停顿 0.6]` 插入停顿（秒）；`#` 开头的行和空行会被忽略。
 - 单句超过 `capabilities` 里的 `audio.max_text_length` 会被接口拒绝，拆成短句即可。
 - 每句音频缓存在 `out/lines/`，同一句同一设置再次运行直接复用；没缓存时用同一个幂等键提交，服务端返回原任务、不重复创建。要新的一版加 `--fresh`。
 
@@ -168,9 +170,9 @@ narrator_slow: actor_id=123 speed=0.9
 ```markdown
 ---
 narrator: actor_id=YOUR_ACTOR_ID speed=1.05
-hero: ref=https://example.com/your-sample.wav ref_text="参考音频里实际说的话"
+hero: voice=我的声音
 ---
-# 电影解说示例（把 actor_id / ref 换成你自己的音色）
+# 电影解说示例（把 actor_id / voice 换成你账号里的角色）
 [narrator] 一个普通的快递员，捡到了一部能看见未来的手机。
 [pause 0.5]
 [hero]：如果明天的新闻里有我，那今天我该做什么？
@@ -208,7 +210,7 @@ ffmpeg -i 配音版.mp4 -vf subtitles=out/voiceover.srt -c:a copy 成片.mp4
 不需要。生成在 Miragea 云端完成，本地只需 Python 3.9+ 标准库，不用 pip 安装任何包。
 
 **AI配音怎么用自己的声音？**
-两种方式：用账号里已经复刻好的角色（`actors` 查 actor_id），或提供一段服务端能直接访问的参考音频 URL，并写上音频里实际说的话（`ref_text=`）。样本要求和计费以 `capabilities` 和官网说明为准。
+用账号里的角色：已经在网站复刻过的，`actors` 查到名称后写 `voice=角色名称`；还没有的，用本人录音运行一次 `create-actor --file 我的录音.wav --name 我的声音` 创建私有角色。录音要求和计费以 `capabilities` 和官网说明为准。
 
 **AI配音一段视频里能有好几个人说话吗？**
 能。稿件开头定义多个角色，每个角色一个音色和语速，正文用 `[角色]` 切换；脚本逐句生成后拼成一条音轨，并同时出字幕。
@@ -239,7 +241,9 @@ Claude Code、Codex、OpenClaw、Cursor、WorkBuddy 等能运行 Python 脚本�
 | 现象 | 处理 |
 |---|---|
 | `missing_api_key` / `MIRAGEA_API_KEY is not set` | 生成 Key 后 `export MIRAGEA_API_KEY=...`；或先加 `--dry-run` |
-| `speakers without a voice` | 给该角色补 `actor_id=` 或 `ref=` |
+| `speakers without a voice` | 给该角色补 `voice=角色名称` 或 `actor_id=`，或加 `--voice 角色名称`；还没有角色先 `create-actor` |
+| `actor_not_found` / `ambiguous_actor_name` | `voice=` 的名称要和 `actors` 列表完全一致；同名角色改用 `actor_id=` |
+| `no longer supported` | 旧稿件用了已停用的音频链接克隆写法：把录音 `create-actor` 建成角色，再改成 `voice=` 或 `actor_id=` |
 | 401 | 检查 Key；不要把 Key 写进日志 |
 | 403 | 检查账号的 API 访问权限 |
 | 400 / 413 | 修正参数：模式、标签、语速、单句字数；或减小上传文件、缩短媒体 |
@@ -254,12 +258,12 @@ Claude Code、Codex、OpenClaw、Cursor、WorkBuddy 等能运行 Python 脚本�
 
 - 只克隆你本人或已获得明确授权的声音，不模仿明星、主播、公众人物或任何未授权的人。
 - 按《人工智能生成合成内容标识办法》和抖音、快手、视频号、小红书、B站等平台规则，发布时声明或标注 AI 生成内容。
-- `scripts/miragea_audio.py` is the official client, shipped unchanged；`scripts/voiceover.py`（稿件拼接层）为原创，MIT 许可（见 `LICENSE.txt`）。配音与字幕能力由 Miragea 开放 API 提供。
+- `scripts/miragea_audio.py` is the official client 1.3.0, shipped unchanged；`scripts/voiceover.py`（稿件拼接层）为原创，MIT 许可（见 `LICENSE.txt`）。配音与字幕能力由 Miragea 开放 API 提供。
 
 ## English Summary
 
-- **AI voiceover & subtitles (AI配音)** for agents: write a script with `[speaker]` tags, run one command, get `voiceover.wav`, timed `voiceover.srt` and `manifest.json`.
-- Voices: saved voices in your account (`actor_id`) or **voice cloning** from a reference audio URL plus its transcript; generation modes, tone tags, speed 0.25–4.
+- **AI voiceover and subtitles (AI配音)** for agents: write a script with `[speaker]` tags, run one command, get `voiceover.wav`, timed `voiceover.srt` and `manifest.json`.
+- Voices: roles in your account (`voice=NAME` or `actor_id`); **voice cloning** = create a private role from your own recording with `create-actor`; generation modes, tone tags, speed 0.25–4.
 - Multi-speaker scripts are rendered line by line through the official client's `generate` and joined locally; `recognize` turns existing audio/video into SRT/TXT/JSON.
 - Limits and pricing come live from `capabilities`. Python 3.9+ standard library, no GPU, `--dry-run` offline. Service: Miragea API (https://miragea.ai/v1).
 

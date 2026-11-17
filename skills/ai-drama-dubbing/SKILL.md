@@ -1,13 +1,13 @@
 ---
 name: "ai-drama-dubbing"
 description: "漫剧配音、AI短剧配音、动画配音、多人配音技能：把 AI 漫剧 / 竖屏短剧 / 动画短片 / 动态漫的剧本（`角色（情绪）：台词`）、分镜表（CSV/TSV：镜号、角色、台词、情绪、开始、时长）或带角色名的 SRT 字幕交给它，自动识别全部角色并生成选角表，每个角色用你自己克隆或保存的音色，逐句按情绪配音；有时间码时按画面时间对轨落位，并报告超出镜头时长的台词和建议语速。输出整段对白 dub.wav、每个角色一条等长分轨 stems/*.wav（方便单独调音量、加混响）、无角色名和带角色名两份 SRT 字幕、逐句时间表 cues.csv，可直接导入剪映 / CapCut / Premiere。改一句只重配一句，`--retake` 单句重录。配音调用 Miragea 开放 API（需要 API Key 和已克隆音色），本地只需 Python 3.9+ 标准库、无需显卡，可 --dry-run 离线试跑。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。AI comic drama dubbing, short drama dubbing, anime dubbing, multi-speaker voiceover, per-role stems, SRT."
-version: "1.0.0"
+version: "1.1.0"
 display_name: "漫剧配音｜AI短剧配音·动画配音·多人配音"
-display_name_en: "AI Comic & Short Drama Dubbing · Multi-Voice · Stems + SRT"
+display_name_en: "AI Comic and Short Drama Dubbing · Multi-Voice · Stems + SRT"
 description_zh: "漫剧配音：AI漫剧、短剧、动画的剧本、分镜表或SRT字幕按角色分配克隆音色，逐句带情绪配音并按时间码对轨，输出整段配音、角色分轨WAV和SRT字幕，超时台词自动提示，本地无需显卡。"
 description_en: "AI comic-drama, short-drama and animation dubbing: give every role its own cloned voice, voice each line with an emotion, lock lines to storyboard or SRT time codes, and get the full dialogue track, one WAV stem per role, SRT subtitles and an overrun report. No GPU."
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   author: "Miragea"
   homepage: "https://miragea.ai"
   requires: "Python 3.9+（仅标准库，无需显卡）, MIRAGEA_API_KEY"
@@ -41,7 +41,7 @@ metadata:
 |---|---|
 | 输入 | ① 剧本 `.md/.txt`：`角色（情绪）：台词`、`[角色\|情绪] 台词`、`旁白：……`，`=== 镜1 ===` / `## 第1场` 分镜，`[pause 0.5]` 停顿，行首 `@00:12.5` 锁定时间；② 分镜表 `.csv/.tsv`：自动识别 镜号 / 角色 / 台词 / 情绪 / 开始 / 时长 / 语速 列；③ 字幕 `.srt`：每条 `角色：台词`，按字幕开始时间落位 |
 | 角色识别 | `drama_dub.py cast` 列出全部角色、句数、字数和用到的情绪，生成 `cast.md` 选角表；没标角色的行归为「旁白」 |
-| 音色 | 每个角色一个：账号里已克隆 / 已保存的音色 `actor_id=`，或本人授权的参考音频 `ref=URL ref_text="原话"`；`speed=` 0.25–4 |
+| 音色 | 每个角色一个账号角色：`voice=角色名称` 或 `actor_id=角色ID`（可用本人授权录音 `create-actor` 创建）；`speed=` 0.25–4 |
 | 逐句情绪 | 台词里的（愤怒）（低语）等会从朗读文本中去掉，并作为语气标签随这一句提交；标签名须是 `capabilities` 里所选模式 `tags[].label` 的原文，用 `@emotions: 愤怒=标签名` 映射 |
 | 时间轴 | 无时间码：按 `--gap`（句间）和 `--shot-gap`（换镜）顺排；有时间码：对轨落位，前一句没说完会把后一句顺延并记录；`--allow-overlap` 允许抢话重叠 |
 | 超时检查 | 对轨模式下，每句实际时长和可用时长（下一句开始前 / 分镜时长 / 字幕时长）比较，`report.md` 列出超时句和建议语速；`--fit` 按建议语速自动重配一次 |
@@ -59,26 +59,29 @@ python3 scripts/drama_dub.py check examples/example.md     # 看每一句被识�
 python3 scripts/drama_dub.py build examples/example.md -o out --dry-run   # 不用 Key，离线跑通
 
 export MIRAGEA_API_KEY=你的key
-python3 scripts/miragea_audio.py actors --limit 50         # 找到你克隆的音色 actor_id（has_more 为真时加 --offset 翻页）
+python3 scripts/miragea_audio.py actors --limit 50         # 找到你克隆的角色名称和 actor_id（has_more 为真时加 --offset 翻页）
+python3 scripts/miragea_audio.py create-actor --file 我的录音.wav --name 我的声音 --language zh   # 还没有角色：用本人或已获授权的录音创建私有角色（按账号规则计费）
 python3 scripts/miragea_audio.py capabilities              # 当前模式、可用语气标签 tags[].label、单句字数上限，以实时返回为准
-python3 scripts/drama_dub.py cast 第1集.md -o cast.md        # 生成选角表，填入每个角色的 actor_id
+python3 scripts/drama_dub.py cast 第1集.md -o cast.md        # 生成选角表，填入每个角色的 voice=角色名称 或 actor_id
 python3 scripts/drama_dub.py build 第1集.md --cast cast.md -o ep01
 ```
 
 Default API root is `https://miragea.ai/v1`; set `MIRAGEA_BASE_URL` (including `/v1`) only for a private deployment.
 
+- 接口只按账号里的角色配音（官方客户端 1.3.0）：稿件里给每个角色写 `voice=角色名称` 或 `actor_id=角色ID`，也可以命令行加 `--voice 角色名称` 统一指定。旧版用音频链接直接克隆的写法服务端已停用，旧稿件改成角色写法即可。
+
 ## 选用你自己克隆的音色
 
-1. 在网站用本人（或已获书面授权的人）的干净录音完成声音克隆，把它保存为账号里的角色。
-2. `python3 scripts/miragea_audio.py actors --limit 50` 列出账号里的角色（`actor_id`、`name`、`language`），按名称找到你的克隆音色，记下 `actor_id`。
+1. 用本人（或已获书面授权的人）的干净录音创建账号角色：在网站完成声音克隆，或运行上面的 `create-actor`。
+2. `python3 scripts/miragea_audio.py actors --limit 50` 列出账号里的角色（`actor_id`、`name`、`language`），按名称找到你的克隆音色，记下名称或 `actor_id`。
 3. 先单句试听，确认音色和语速：
 
 ```bash
-python3 scripts/miragea_audio.py generate --text '三年了，你一句解释都没有？' --actor-id 你的音色ID --wait --output test_linxia.mp3
+python3 scripts/miragea_audio.py generate --text '三年了，你一句解释都没有？' --actor-name 林夏的声音 --wait --output test_linxia.mp3
 ```
 
-4. 把 `actor_id` 填进 `cast.md` 对应角色那一行。同一个克隆音色可以用不同 `speed=`、不同语气标签分给两个次要角色，但主角之间最好用不同的音色。
-5. 还没克隆、只有一段授权录音的公开链接时，可以临时用 `ref=录音URL ref_text="录音里的原话"`；长期使用建议先克隆成账号音色，全剧声音更稳定。
+4. 把 `voice=角色名称` 或 `actor_id=` 填进 `cast.md` 对应角色那一行。同一个克隆音色可以用不同 `speed=`、不同语气标签分给两个次要角色，但主角之间最好用不同的音色。
+5. 还没有角色、只有一段授权录音时，先 `create-actor --file 录音.wav --name 角色名称` 建成账号角色再用；全剧固定用同一个角色，声音更稳定。
 
 ## 你说什么 → Agent 执行
 
@@ -87,7 +90,7 @@ python3 scripts/miragea_audio.py generate --text '三年了，你一句解释都
 | “给这集漫剧配音” | `cast` 出选角表 → 你确认每个角色用哪个音色 → `build` |
 | “这是分镜表 / 字幕文件” | 直接 `build 分镜.csv` 或 `build 字幕.srt`，按时间码对轨 |
 | “我只有小说片段” | Agent 先改成 `角色（情绪）：台词` 的剧本给你确认（改编由 Agent 完成），再配音 |
-| “女主声音用我克隆的那个” | `actors` 查到 actor_id，填进 cast.md 的女主那一行 |
+| “女主声音用我克隆的那个” | `actors` 查到角色名称，`voice=角色名称` 填进 cast.md 的女主那一行 |
 | “这句太长，画面已经切走了” | 看 `report.md` 的建议语速：删减台词，或给这句写 `语速`，或 `--fit` 自动重配 |
 | “第 7 句情绪不对，再来一条” | 改情绪标注后重跑；只想换一版就 `--retake 7` |
 | “给我每个角色单独的音轨” | 用 `stems/` 里的文件，和 `dub.wav` 等长，导入后直接对齐 |
@@ -149,7 +152,7 @@ python3 scripts/miragea_audio.py generate --text '三年了，你一句解释都
 旁白：她不知道，这一转身，就是十年。
 ```
 
-同目录还有 `examples/storyboard.csv`（分镜表，带开始时间和时长）和 `examples/dialogue.srt`（带角色名的字幕），三种输入都可以直接 `--dry-run` 试跑。
+同目录还有 `examples/storyboard.csv`（分镜表，带开始时间和时长）和 `examples/dialogue_srt.txt`（带角色名的 SRT 字幕，存成 .txt），三种输入都可以直接 `--dry-run` 试跑。
 
 ## --dry-run 示例输出
 
@@ -191,7 +194,7 @@ ffmpeg -i ep01/dub.wav -i bgm.mp3 -filter_complex "[1:a]volume=0.25[b];[0:a][b]a
 能。`角色：台词`、`角色（情绪）：台词`、`[角色|情绪] 台词` 都能识别；`drama_dub.py cast` 列出全部角色和句数并生成选角表。没写角色的行算作「旁白」。
 
 **AI 短剧配音怎么让每个角色用我自己克隆的声音？**
-先在网站完成克隆，用 `miragea_audio.py actors` 查到 `actor_id`，填进选角表对应角色。详见上文「选用你自己克隆的音色」。
+先在网站完成克隆，用 `miragea_audio.py actors` 查到角色名称或 `actor_id`，填进选角表对应角色（没有角色先 `create-actor`）。详见上文「选用你自己克隆的音色」。
 
 **去哪里获取 API Key 和克隆音色？**
 在 https://miragea.ai 注册并克隆音色，Key 在 https://miragea.ai/workspace/api 生成。没有 Key 时可以先用 `--dry-run` 把剧本、分镜和输出格式全部跑通。
@@ -219,7 +222,9 @@ ffmpeg -i ep01/dub.wav -i bgm.mp3 -filter_complex "[1:a]volume=0.25[b];[0:a][b]a
 | 现象 | 处理 |
 |---|---|
 | `missing_api_key` / `MIRAGEA_API_KEY is not set` | 生成 Key 后 `export MIRAGEA_API_KEY=...`；或先加 `--dry-run` |
-| `speakers without a voice` | 给该角色补 `actor_id=` 或 `ref=` |
+| `speakers without a voice` | 给该角色补 `voice=角色名称` 或 `actor_id=`，或加 `--voice 角色名称`；还没有角色先 `create-actor` |
+| `actor_not_found` / `ambiguous_actor_name` | `voice=` 的名称要和 `actors` 列表完全一致；同名角色改用 `actor_id=` |
+| `no longer supported` | 旧稿件用了已停用的音频链接克隆写法：把录音 `create-actor` 建成角色，再改成 `voice=` 或 `actor_id=` |
 | 401 | 检查 Key；不要把 Key 写进日志 |
 | 403 | 检查账号的 API 访问权限 |
 | 400 / 413 | 修正参数：模式、标签、语速、单句字数；或减小上传文件、缩短媒体 |
@@ -242,12 +247,12 @@ ffmpeg -i ep01/dub.wav -i bgm.mp3 -filter_complex "[1:a]volume=0.25[b];[0:a][b]a
 - 只用你本人或已取得明确书面授权的声音做克隆和配音，不模仿演员、主播、公众人物或任何未授权的人；未经授权使用他人声音（“偷声”）已是 AI 短剧内容治理的重点。
 - 按《人工智能生成合成内容标识办法》和抖音、快手、视频号、小红书、B站、红果等平台规则，发布时声明或标注 AI 生成内容。
 - 剧本、分镜、画面素材须为原创或已获授权。
-- `scripts/miragea_audio.py` is the official client, shipped unchanged；`scripts/voiceover.py`、`scripts/drama_dub.py` 为原创，MIT 许可（见 `LICENSE.txt`）。
+- `scripts/miragea_audio.py` is the official client 1.3.0, shipped unchanged；`scripts/voiceover.py`、`scripts/drama_dub.py` 为原创，MIT 许可（见 `LICENSE.txt`）。
 
 ## English Summary
 
 - **AI comic-drama / short-drama / animation dubbing (漫剧配音)**: feed a script (`Role (emotion): line`), a storyboard CSV/TSV or an SRT with role names.
-- `drama_dub.py cast` lists every role and writes a casting sheet; give each role one of your cloned voices (`actor_id` from `miragea_audio.py actors`) or an authorised reference audio.
+- `drama_dub.py cast` lists every role and writes a casting sheet; give each role a role from your account (`voice=NAME` or `actor_id` from `miragea_audio.py actors`; create one from an authorised recording with `create-actor`).
 - `drama_dub.py build` voices each line with its emotion as a tone tag, lays lines end to end or locks them to time codes, reports lines that overrun their slot with a suggested speed (`--fit` re-renders them), and writes `dub.wav`, equal-length per-role stems, `dub.srt`, `dub_roles.srt`, `cues.csv`, `manifest.json` and `report.md`.
 - Edit one line, re-render one line. Python 3.9+ stdlib, no GPU, `--dry-run` works without a key.
 

@@ -1,13 +1,13 @@
 ---
 name: "video-script-extract"
 description: "视频文案提取、视频转文字、音频转文案技能：把本地视频或音频文件交给它，调用 Miragea 开放 API 的语音识别，提取口播文案，输出 transcript.txt 文字稿、带时间轴的 transcript.srt 字幕，并生成按句拆好的改写表 rewrite.md；你（或 Agent）把每句改写成自己的原创文案后，用你自己克隆或授权的音色一键重新配音，得到新的配音 WAV 和 SRT 字幕。适用于整理自己的口播稿、课程和访谈录音、会议纪要初稿、素材复盘与二次创作；只处理本地文件，不抓取链接，不照搬他人文案。需要 API Key，本地只需 Python 3.9+ 标准库、无需显卡，可 --dry-run 离线试跑。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。Video script extraction, speech to text, audio to transcript, SRT subtitles, rewrite and re-voice."
-version: "1.0.0"
+version: "1.1.0"
 display_name: "视频文案提取｜视频转文字·音频转文案·改写重配音"
 display_name_en: "Video Script Extract · Speech to Text · Rewrite and Re-voice"
 description_zh: "视频文案提取：上传本地视频或音频，自动识别语音提取口播文案，导出TXT文字稿和带时间轴SRT字幕；改写成自己的原创文案后，用声音克隆一键重新配音，适合口播、课程、访谈整理，无需显卡。"
 description_en: "Extract the spoken script from a local video or audio file as a TXT transcript and timed SRT subtitles, rewrite it in your own words, then re-voice it with your own cloned voice. For talking-head videos, courses and interviews. No GPU."
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   author: "Miragea"
   homepage: "https://miragea.ai"
   requires: "Python 3.9+（仅标准库，无需显卡）, MIRAGEA_API_KEY"
@@ -43,7 +43,7 @@ metadata:
 | 识别 | 调用客户端 `recognize`，分别取 `srt` 和 `txt` 两种结果 |
 | 输出 | `transcript.txt`、`transcript.srt`、`rewrite.md` |
 | 改写表 | 文字稿按句拆开，每句原文放在 HTML 注释里，下面一行 `[主播] ` 留给你写改写后的句子 |
-| 重新配音 | `revoice` 把填好的 `rewrite.md` 交给 `scripts/voiceover.py`，用 `actor_id` 或授权参考音频逐句配音，拼成 `voiceover.wav` 并输出 `voiceover.srt`、`manifest.json` |
+| 重新配音 | `revoice` 把填好的 `rewrite.md` 交给 `scripts/voiceover.py`，用账号角色（`voice=角色名称` 或 `actor_id`）逐句配音，拼成 `voiceover.wav` 并输出 `voiceover.srt`、`manifest.json` |
 | 本地依赖 | Python 3.9+ 标准库，无需显卡；`--dry-run` 用内置示例文稿，不需要 Key、不调用接口 |
 
 ## 快速开始
@@ -56,12 +56,15 @@ python3 scripts/video_copy.py extract -o out --dry-run         # 不用 Key，�
 
 export MIRAGEA_API_KEY=你的key
 python3 scripts/video_copy.py extract 我的口播.mp4 -o out      # 提取文案
-python3 scripts/miragea_audio.py actors --limit 50             # 找到自己克隆音色的 actor_id
-# 编辑 out/rewrite.md：填 actor_id，把每句改写成自己的原创表达
-python3 scripts/video_copy.py revoice out/rewrite.md -o out_voice
+python3 scripts/miragea_audio.py actors --limit 50             # 找到自己克隆的角色名称
+python3 scripts/miragea_audio.py create-actor --file 我的录音.wav --name 我的声音 --language zh   # 还没有角色：用本人或已获授权的录音创建私有角色（按账号规则计费）
+# 编辑 out/rewrite.md：把每句改写成自己的原创表达
+python3 scripts/video_copy.py revoice out/rewrite.md -o out_voice --voice 我的声音
 ```
 
 Default API root is `https://miragea.ai/v1`; set `MIRAGEA_BASE_URL` (including `/v1`) only for a private deployment.
+
+- 接口只按账号里的角色配音（官方客户端 1.3.0）：稿件里给每个角色写 `voice=角色名称` 或 `actor_id=角色ID`，也可以命令行加 `--voice 角色名称` 统一指定。旧版用音频链接直接克隆的写法服务端已停用，旧稿件改成角色写法即可。
 
 ## 你说什么 → Agent 执行
 
@@ -70,7 +73,7 @@ Default API root is `https://miragea.ai/v1`; set `MIRAGEA_BASE_URL` (including `
 | “把这个视频的口播提取成文字” | `extract 视频文件`，把 `transcript.txt` 给你 |
 | “要字幕” | 直接给 `transcript.srt` |
 | “照这个思路写一篇新的，别和原文一样” | 读取文字稿，由 Agent 另行原创写作，写进 `rewrite.md` 的 `[主播]` 行 |
-| “用我的声音重新配” | `actors` 查 actor_id，填进 `rewrite.md` 头部后 `revoice` |
+| “用我的声音重新配” | `actors` 查角色名称 → `revoice rewrite.md --voice 角色名称`（或写进 `rewrite.md` 头部） |
 | “先别调用接口” | 加 `--dry-run` |
 
 ## 工作流建议
@@ -92,14 +95,14 @@ wrote out/transcript.txt, transcript.srt, rewrite.md (5 sentences)  [dry-run: sa
 
 ```markdown
 ---
-# 填你自己克隆或授权的音色；actor_id 用 miragea_audio.py actors 查
-主播: actor_id=YOUR_CLONED_VOICE_ID
+# 主播的音色：账号里的角色名称（miragea_audio.py actors 查），也可写 actor_id=角色ID
+主播: voice=我的声音
 ---
-<!-- 原文1: 大家好，今天讲三个提升睡眠质量的小习惯。 -->
+# 原文1: 大家好，今天讲三个提升睡眠质量的小习惯。
 [主播] 睡不好的朋友看过来，三个小习惯帮你把觉睡踏实。
-<!-- 原文2: 第一，睡前一小时放下手机。 -->
+# 原文2: 第一，睡前一小时放下手机。
 [主播] 先从睡前一小时不看手机开始。
-<!-- 原文3: 第二，固定每天起床的时间。 -->
+# 原文3: 第二，固定每天起床的时间。
 [主播] 再把起床时间固定下来，周末也别例外。
 ```
 
@@ -139,7 +142,9 @@ wrote out/transcript.txt, transcript.srt, rewrite.md (5 sentences)  [dry-run: sa
 | 现象 | 处理 |
 |---|---|
 | `missing_api_key` / `MIRAGEA_API_KEY is not set` | 生成 Key 后 `export MIRAGEA_API_KEY=...`；或先加 `--dry-run` |
-| `speakers without a voice` | 给该角色补 `actor_id=` 或 `ref=` |
+| `speakers without a voice` | 给该角色补 `voice=角色名称` 或 `actor_id=`，或加 `--voice 角色名称`；还没有角色先 `create-actor` |
+| `actor_not_found` / `ambiguous_actor_name` | `voice=` 的名称要和 `actors` 列表完全一致；同名角色改用 `actor_id=` |
+| `no longer supported` | 旧稿件用了已停用的音频链接克隆写法：把录音 `create-actor` 建成角色，再改成 `voice=` 或 `actor_id=` |
 | 401 | 检查 Key；不要把 Key 写进日志 |
 | 403 | 检查账号的 API 访问权限 |
 | 400 / 413 | 修正参数：模式、标签、语速、单句字数；或减小上传文件、缩短媒体 |
@@ -162,7 +167,7 @@ wrote out/transcript.txt, transcript.srt, rewrite.md (5 sentences)  [dry-run: sa
 - 只处理你本人拥有或已获授权的音视频；不照搬他人文案，不侵犯著作权和隐私，涉及他人声音须取得同意。
 - 只用你本人或已获书面授权的声音做克隆和配音。
 - 按《人工智能生成合成内容标识办法》和各平台规则，发布时标注 AI 生成内容。
-- `scripts/miragea_audio.py` is the official client, shipped unchanged；`scripts/voiceover.py`、`scripts/video_copy.py` 为原创，MIT 许可（见 `LICENSE.txt`）。
+- `scripts/miragea_audio.py` is the official client 1.3.0, shipped unchanged；`scripts/voiceover.py`、`scripts/video_copy.py` 为原创，MIT 许可（见 `LICENSE.txt`）。
 
 ## English Summary
 

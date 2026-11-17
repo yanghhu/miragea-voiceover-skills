@@ -1,13 +1,13 @@
 ---
 name: "movie-recap-ai-voiceover"
 description: "电影解说配音、短剧解说配音、影视解说配音技能：把解说稿（Markdown / TXT，可带时间码）、分镜表（CSV/TSV：镜号、画面、开始、时长、角色、文案、语气）或 SRT 字幕交给它，解说旁白和角色台词各用你自己克隆或保存的音色，逐句按语气配音；有时间码时按画面时长对轨落位，报告超出画面的句子、建议语速和要删的字数，`--fit` 可自动重配。输出整段 voiceover.wav、旁白分轨 stems/narration.wav 和台词分轨 stems/dialogue.wav（另有每个角色单独音轨）、无角色名和带角色名两份 SRT 字幕、逐句计划表 cues.csv 和 report.md，可直接导入剪映 / CapCut / Premiere。改一句只重配一句，`--retake` 单句重录；内置 selftest 离线自检。配音调用 Miragea 开放 API（需要 API Key 和已克隆音色），本地只需 Python 3.9+ 标准库、无需显卡，无 Key 时 --dry-run 可完整跑通。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。Movie recap voiceover, narration and dialogue stems, voice cloning, SRT subtitles."
-version: "1.0.3"
+version: "1.1.0"
 display_name: "电影解说配音｜短剧解说·影视解说·AI配音"
 display_name_en: "Movie Recap Voiceover · Narration + Dialogue Stems · SRT"
 description_zh: "电影解说配音：解说稿、分镜表或SRT字幕一键配音，旁白和角色台词用不同克隆音色分轨输出，按画面时长对轨提示超时句，逐句语气可调，改一句只重配一句，输出WAV和SRT字幕，无需显卡。"
 description_en: "Movie / TV / short-drama recap voiceover: script, shot list or SRT in; narrator and character lines in your own cloned voices, locked to picture time codes with an overrun report, separate narration and dialogue stems, SRT subtitles, edit one line re-render one line. No GPU."
 metadata:
-  version: "1.0.3"
+  version: "1.1.0"
   author: "Miragea"
   homepage: "https://miragea.ai"
   requires: "Python 3.9+（仅标准库，无需显卡）, MIRAGEA_API_KEY"
@@ -39,7 +39,7 @@ python3 scripts/voiceover.py check                                            # 
 $ python3 scripts/recap_dub.py selftest
 PASS  解析解说稿：3 句、旁白/台词分轨、语气、时间码
 ...
-selftest 通过：14/14 通过（未使用 API Key，未联网）
+selftest 通过：16/16 通过（未使用 API Key，未联网）
 
 $ python3 scripts/recap_dub.py build examples/example.md -o out --dry-run
 完成：out/voiceover.wav（39.2 秒，9 句，顺排）+ stems/narration.wav + stems/dialogue.wav + voiceover.srt + cues.csv + report.md  [dry-run：占位音，未调用接口]
@@ -69,7 +69,8 @@ $ python3 scripts/recap_dub.py build examples/timed_script.txt -o out_timed --dr
 
 ```bash
 export MIRAGEA_API_KEY=你的key
-python3 scripts/miragea_audio.py actors --limit 50          # 找到你克隆的音色 actor_id（has_more 为真时加 --offset 翻页）
+python3 scripts/miragea_audio.py actors --limit 50          # 找到你克隆的角色名称和 actor_id（has_more 为真时加 --offset 翻页）
+python3 scripts/miragea_audio.py create-actor --file 我的录音.wav --name 我的声音 --language zh   # 还没有角色：用本人或已获授权的录音创建私有角色（按账号规则计费）
 python3 scripts/miragea_audio.py capabilities               # 当前模式、可用语气标签 tags[].label、单句字数上限，以实时返回为准
 python3 scripts/recap_dub.py cast 第1期.md -o cast.md        # 生成音色表，填入旁白和每个角色的 actor_id
 python3 scripts/recap_dub.py build 第1期.md --cast cast.md -o ep01
@@ -77,17 +78,19 @@ python3 scripts/recap_dub.py build 第1期.md --cast cast.md -o ep01
 
 Default API root is `https://miragea.ai/v1`; set `MIRAGEA_BASE_URL` (including `/v1`) only for a private deployment.
 
+- 接口只按账号里的角色配音（官方客户端 1.3.0）：稿件里给每个角色写 `voice=角色名称` 或 `actor_id=角色ID`，也可以命令行加 `--voice 角色名称` 统一指定。旧版用音频链接直接克隆的写法服务端已停用，旧稿件改成角色写法即可。
+
 ## 选用你自己克隆的音色
 
-1. 在网站用本人（或已获书面授权的配音员）的干净录音完成声音克隆，保存为账号里的角色。
-2. `python3 scripts/miragea_audio.py actors --limit 50` 列出账号角色（`actor_id`、`name`、`language`），找到你的解说声线，记下 `actor_id`。
+1. 用本人（或已获书面授权的配音员）的干净录音创建账号角色：在网站完成声音克隆，或运行上面的 `create-actor`。
+2. `python3 scripts/miragea_audio.py actors --limit 50` 列出账号角色（`actor_id`、`name`、`language`），找到你的解说声线，记下名称或 `actor_id`。
 3. 单句试听，确认音色和语速（`--output` 不会覆盖已有文件，每次换个新文件名）：
 
 ```bash
-python3 scripts/miragea_audio.py generate --text '他捡到的这部手机，只会显示明天的新闻。' --actor-id 你的音色ID --wait --output test_narrator.mp3
+python3 scripts/miragea_audio.py generate --text '他捡到的这部手机，只会显示明天的新闻。' --actor-name 我的声音 --wait --output test_narrator.mp3
 ```
 
-4. 把 `actor_id` 填进 `cast.md` 的「旁白」行；整季所有稿件都用同一个旁白音色和 `speed`，观众靠声音认号。
+4. 把 `voice=角色名称` 或 `actor_id=` 填进 `cast.md` 的「旁白」行；整季所有稿件都用同一个旁白音色和 `speed`，观众靠声音认号。
 5. 同一个音色可以配两个名字：`旁白: actor_id=ID speed=1.05` 快讲铺垫，`旁白慢: actor_id=ID speed=0.9` 慢讲反转，两者都进旁白分轨。
 6. 角色台词的音色要和旁白拉开（性别、年龄、语速），只用你自有或已授权的音色，不要模仿原片演员。
 
@@ -109,8 +112,8 @@ python3 scripts/miragea_audio.py generate --text '他捡到的这部手机，只
 **1. 解说稿（.md / .txt）**
 
 - 不写说话人的行一律是**解说旁白**；角色台词写成 `角色：台词`、`角色（语气）：台词` 或 `[角色|语气] 台词`。
-- 开头 `---` 之间给每个说话人定音色：`名字: actor_id=ID speed=1.0`，或 `名字: ref=参考音频URL ref_text="录音里的原话"`；可加 `model=expressive|standard`、`tags=标签`、`language=`。名字以「旁白 / 解说 / narrator / 画外音」开头的进旁白分轨，其余进台词分轨；也可写 `track=narration|dialogue` 指定。
-- `=== 镜3 | 转折 ===` 或 `## 镜3` 标镜号；单独一行的 `<!-- 画面：雨夜街口 -->` 记到下一句的“画面”列；`[pause 0.6]` / `[停顿 0.6]` 插入停顿；`#` 开头的行忽略。
+- 开头 `---` 之间给每个说话人定音色：`名字: actor_id=ID speed=1.0`，或 `名字: voice=角色名称`（和 `actors` 列表完全一致）；可加 `model=expressive|standard`、`tags=标签`、`language=`。名字以「旁白 / 解说 / narrator / 画外音」开头的进旁白分轨，其余进台词分轨；也可写 `track=narration|dialogue` 指定。
+- `=== 镜3 | 转折 ===` 或 `## 镜3` 标镜号；单独一行的 `> 画面：雨夜街口` 记到下一句的“画面”列；`[pause 0.6]` / `[停顿 0.6]` 插入停顿；`#` 开头的行忽略。
 - 时间码写在行首：`00:01:12.5 文案`（从这里开始）、`[00:01:12-00:01:18] 文案`（这段画面 6 秒，超了会报告）、`@72.5 文案`（秒数）。
 - 语气：`（低沉）` 会从朗读文本里去掉，作为语气标签随这一句提交；标签名须是 `capabilities` 里 `tags[].label` 的原文，用 `@tones: 低沉=实际标签名` 映射。账号没有合适标签时加 `--no-tone`。
 
@@ -168,11 +171,11 @@ python3 scripts/miragea_audio.py generate --text '他捡到的这部手机，只
 ---
 # 电影解说示例（原创剧情，非任何影片台词）
 === 镜1 | 悬念开场 ===
-<!-- 画面：雨夜，手机屏幕亮起 -->
+> 画面：雨夜，手机屏幕亮起
 他捡到的这部手机，只会显示明天的新闻。
 而明天的头条，是他自己。
 === 镜2 | 身份交代 ===
-<!-- 画面：电动车穿过窄巷 -->
+> 画面：电动车穿过窄巷
 一个送了八年快递、欠着房租的男人，每天在同一条街上跑四十单。
 快递员（紧张）：明天下午三点……这不就是我送件的时间吗？
 === 镜3 | 转折 ===
@@ -246,7 +249,9 @@ ffmpeg -i ep01/voiceover.wav -i bgm.mp3 -filter_complex "[1:a]volume=0.2[b];[0:a
 | 现象 | 处理 |
 |---|---|
 | `未设置 MIRAGEA_API_KEY` / `missing_api_key` | 生成 Key 后 `export MIRAGEA_API_KEY=...`；没有 Key 先用 `--dry-run` 或 `selftest`（不会调用接口） |
-| `这些说话人还没有音色` / `还是示例占位符` | `cast 稿件 -o cast.md`，填入 `miragea_audio.py actors` 返回的真实 `actor_id`，再加 `--cast cast.md` |
+| `这些说话人还没有音色` / `还是示例占位符` | `cast 稿件 -o cast.md`，填入 `miragea_audio.py actors` 返回的真实 `actor_id` 或 `voice=角色名称`，再加 `--cast cast.md` |
+| `actor_not_found` / `ambiguous_actor_name` | `voice=` 的名称要和 `actors` 列表完全一致；同名角色改用 `actor_id=` |
+| `音频链接直接克隆已停用` | 旧稿件用了已停用的音频链接写法：录音先 `create-actor` 建角色，再改成 `voice=` 或 `actor_id=` |
 | `找不到稿件文件` | 检查路径；先用 `examples/` 下的示例试跑 |
 | report.md 里很多句超时 | 先删字，再调语速，或加 `--fit` |
 | 401 | 检查 Key；不要把 Key 写进日志 |
@@ -273,12 +278,12 @@ ffmpeg -i ep01/voiceover.wav -i bgm.mp3 -filter_complex "[1:a]volume=0.2[b];[0:a
 - 只克隆你本人或已获得明确授权的声音，不模仿明星、主播、原片演员或任何未授权的人。
 - 按《人工智能生成合成内容标识办法》和抖音、快手、视频号、小红书、B站等平台规则，发布时声明或标注 AI 生成内容。
 - 影视画面和原片台词有版权：本技能只给你自己写的解说稿配音，不提取、不模仿原片声音；使用影视素材请遵守版权方和平台的二创规则。
-- `scripts/miragea_audio.py` is the official client, shipped unchanged；`scripts/voiceover.py`、`scripts/recap_dub.py` 为原创，MIT 许可（见 `LICENSE.txt`）。
+- `scripts/miragea_audio.py` is the official client 1.3.0, shipped unchanged；`scripts/voiceover.py`、`scripts/recap_dub.py` 为原创，MIT 许可（见 `LICENSE.txt`）。
 
 ## English Summary
 
 - **Movie / TV / short-drama recap voiceover (电影解说配音)**: input a recap script (untagged lines = narration, `Role (tone): line` = dialogue, optional time codes), a shot-list CSV/TSV or an SRT (also as .txt).
-- Narrator and characters each use your own cloned voice (`actor_id` from `miragea_audio.py actors`); per-line tone tags; lines are locked to picture time codes, with an overrun report (suggested speed / characters to cut) and `--fit`.
+- Narrator and characters each use a role in your account (`voice=NAME` or `actor_id` from `miragea_audio.py actors`; create one from your own recording with `create-actor`); per-line tone tags; lines are locked to picture time codes, with an overrun report (suggested speed / characters to cut) and `--fit`.
 - Outputs `voiceover.wav`, `stems/narration.wav`, `stems/dialogue.wav`, per-speaker stems, `voiceover.srt`, `voiceover_roles.srt`, `cues.csv`, `report.md`, `manifest.json`. Edit one line, re-render one line; `--retake`.
 - Offline: `recap_dub.py selftest` and `--dry-run` need no key and no network. Python 3.9+ stdlib, no GPU.
 

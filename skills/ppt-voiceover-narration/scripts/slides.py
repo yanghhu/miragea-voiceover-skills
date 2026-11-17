@@ -79,7 +79,14 @@ def read_srt(path):
     return cues
 
 
+def need_file(path):
+    if not os.path.isfile(path):
+        sys.stderr.write("错误：找不到文件 %s，请检查路径（示例文件在 examples/ 目录）。\n" % path)
+        raise SystemExit(2)
+
+
 def cmd_check(a):
+    need_file(a.file)
     with open(a.file, encoding="utf-8") as f:
         _, pages = split_notes(f.read())
     for no, title, body in pages:
@@ -89,6 +96,7 @@ def cmd_check(a):
 
 
 def cmd_build(a):
+    need_file(a.file)
     with open(a.file, encoding="utf-8") as f:
         front, pages = split_notes(f.read())
     os.makedirs(a.output, exist_ok=True)
@@ -105,7 +113,7 @@ def cmd_build(a):
         with open(src, "w", encoding="utf-8") as f:
             f.write(front + body + "\n")
         cmd = [sys.executable, os.path.join(HERE, "voiceover.py"), "script", src, "-o", folder]
-        for opt in ("preset", "gap", "max_chars", "model"):
+        for opt in ("preset", "gap", "max_chars", "model", "voice", "actor_id"):
             v = getattr(a, opt)
             if v is not None:
                 cmd += ["--" + opt.replace("_", "-"), str(v)]
@@ -162,7 +170,7 @@ def cmd_build(a):
 
 def main(argv=None):
     p = argparse.ArgumentParser(description="PPT / courseware notes -> per-page voiceover, joined narration, SRT and slide timings")
-    p.add_argument("--version", action="version", version="slides.py 1.0.0")
+    p.add_argument("--version", action="version", version="slides.py 1.1.0")
     sub = p.add_subparsers(dest="cmd", required=True)
     c = sub.add_parser("check", help="list pages found in the notes file")
     c.add_argument("file")
@@ -177,6 +185,8 @@ def main(argv=None):
     b.add_argument("--page-gap", type=float, default=0.8, help="silence between pages in narration.wav (default 0.8s)")
     b.add_argument("--silent-page", type=float, default=3.0, help="suggested seconds for pages without notes (slides.json only)")
     b.add_argument("--image-pattern", default="%02d.png", help="slide image file name pattern for concat.txt")
+    b.add_argument("--voice", help="exact role name for speakers without a voice in the front matter")
+    b.add_argument("--actor-id", help="role ID for speakers without a voice in the front matter")
     b.add_argument("--dry-run", action="store_true")
     b.add_argument("--fresh", action="store_true")
     a = p.parse_args(argv)

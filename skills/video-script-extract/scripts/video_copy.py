@@ -2,7 +2,7 @@
 """Video/audio -> editable script -> new voiceover, on top of the official client (miragea_audio.py).
 
   python3 scripts/video_copy.py extract MEDIA -o OUT [--dry-run]   recognize speech -> OUT/transcript.txt, transcript.srt, rewrite.md
-  python3 scripts/video_copy.py revoice rewrite.md -o OUT [--dry-run]   edited rewrite.md -> voiceover via scripts/voiceover.py
+  python3 scripts/video_copy.py revoice rewrite.md -o OUT [--voice ROLE_NAME] [--dry-run]   edited rewrite.md -> voiceover via scripts/voiceover.py
   python3 scripts/video_copy.py selftest                            offline self check
 
 extract uses the client's real `recognize` subcommand (srt + txt). --dry-run uses a bundled sample
@@ -63,22 +63,27 @@ def cmd_extract(a):
         run_recognize(a.media, a.output, "srt")
         t = run_recognize(a.media, a.output, "txt")
         lines = sentences(open(t, encoding="utf-8").read())
-    sheet = ["---", "# 在下面填你的音色；actor_id 用 miragea_audio.py actors 查，或 ref=授权录音URL ref_text=\"录音原话\"",
-             "主播: actor_id=YOUR_VOICE_ID", "---", "",
-             "<!-- 下面每行是识别出的原文（注释）。请只做自己的原创改写，写在 [主播] 行里；不要照搬他人文案。 -->"]
+    sheet = ["---", "# 主播的音色：在下一行写 voice=角色名称 或 actor_id=角色ID（miragea_audio.py actors 查；没有角色先 create-actor），",
+             "# 或者 revoice 时加 --voice 角色名称",
+             "主播:", "---", "",
+             "# 下面 # 开头的行是识别出的原文（不会被朗读）。请只做自己的原创改写，写在 [主播] 行里；不要照搬他人文案。"]
     for i, s in enumerate(lines, 1):
-        sheet += ["<!-- 原文%d: %s -->" % (i, s.replace("--", "—")), "[主播] "]
+        sheet += ["# 原文%d: %s" % (i, s), "[主播] "]
     write(os.path.join(a.output, "rewrite.md"), "\n".join(sheet) + "\n")
     print("wrote %s/transcript.txt, transcript.srt, rewrite.md (%d sentences)%s" % (a.output, len(lines), "  [dry-run: sample transcript, no API call]" if a.dry_run else ""))
 
 
 def cmd_revoice(a):
     body = open(a.file, encoding="utf-8").read()
-    filled = [l for l in body.splitlines() if re.match(r"^\s*\[[^\]]+\]\s*\S", l) and not l.strip().startswith("<!--")]
+    filled = [l for l in body.splitlines() if re.match(r"^\s*\[[^\]]+\]\s*\S", l) and not l.strip().startswith(("<!--", "#"))]
     if not filled:
         sys.stderr.write("rewrite.md 里还没有写任何改写句（[主播] 后面为空）。\n")
         raise SystemExit(2)
     cmd = [sys.executable, VOICE, "script", a.file, "-o", a.output]
+    if a.voice:
+        cmd += ["--voice", a.voice]
+    if a.actor_id:
+        cmd += ["--actor-id", a.actor_id]
     if a.dry_run:
         cmd.append("--dry-run")
     raise SystemExit(subprocess.call(cmd))
@@ -99,7 +104,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     s = p.add_subparsers(dest="c", required=True)
     e = s.add_parser("extract"); e.add_argument("media", nargs="?", default=""); e.add_argument("-o", "--output", default="out"); e.add_argument("--dry-run", action="store_true"); e.set_defaults(f=cmd_extract)
-    r = s.add_parser("revoice"); r.add_argument("file"); r.add_argument("-o", "--output", default="out_voice"); r.add_argument("--dry-run", action="store_true"); r.set_defaults(f=cmd_revoice)
+    r = s.add_parser("revoice"); r.add_argument("file"); r.add_argument("-o", "--output", default="out_voice"); r.add_argument("--dry-run", action="store_true"); r.add_argument("--voice", help="exact role name in the account"); r.add_argument("--actor-id"); r.set_defaults(f=cmd_revoice)
     t = s.add_parser("selftest"); t.set_defaults(f=cmd_selftest)
     a = p.parse_args()
     a.f(a)

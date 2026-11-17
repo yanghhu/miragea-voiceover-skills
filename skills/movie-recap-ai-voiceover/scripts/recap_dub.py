@@ -8,13 +8,14 @@
 
 SCRIPT may be any of (detected from the content, not only the extension):
   * a recap script (.md/.txt): untagged lines are narration;  角色：台词 / 角色（语气）：台词 / [角色|语气] 台词
-      `=== 镜1 | 雨夜街口 ===` shot headers, `<!-- 画面：... -->` picture notes, `[pause 0.6]` / `[停顿 0.6]`,
+      `=== 镜1 | 雨夜街口 ===` shot headers, `> 画面：...` picture notes, `[pause 0.6]` / `[停顿 0.6]`,
       optional time codes at the start of a line: `00:01:12.5 文案`, `[00:01:12-00:01:18] 文案`, `@72.5 文案`
   * a storyboard / shot list table (.csv/.tsv): 镜号 / 画面 / 开始 / 结束 / 时长 / 角色 / 文案(台词) / 语气 / 语速
   * SRT subtitles (.srt, or SRT text saved as .txt): every cue is placed at its start time; `角色：` prefixes are kept
 
 Voices (front matter of SCRIPT or a separate --cast file):
-  旁白: actor_id=ID speed=1.0          角色: ref=https://.../sample.wav ref_text="原话"
+  旁白: actor_id=ROLE_ID speed=1.0      角色: voice=账号里的角色名称
+  (roles only: cloning from a reference audio URL, ref=, was removed in client 1.3.0)
   @tones: 低沉=TAG_LABEL, 紧张=TAG_LABEL   (map script tones to the account's tags[].label)
 
 Outputs in OUT/: voiceover.wav (full mix), stems/narration.wav + stems/dialogue.wav (+ stems/roles/*.wav),
@@ -42,16 +43,17 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from voiceover import ScriptError, generate_line, payload_for, read_wav, split_caption, ts  # noqa: E402
 
-VERSION = "1.0.3"
+VERSION = "1.1.0"
 DRY_RATE = 24000
 CHARS_PER_SEC = 4.5          # rough Chinese speaking rate, used only for estimates and --dry-run
 NARR_WORDS = ("narrator", "旁白", "解说", "画外音", "OS", "VO")
-ALIASES = {"ref": "reference_audio_url", "ref_text": "reference_text", "actor": "actor_id"}
-VOICE_KEYS = ("actor_id", "reference_audio_url", "reference_text", "model", "language", "speed", "tags", "track")
+ALIASES = {"actor": "actor_id", "voice": "actor_name", "name": "actor_name"}
+REMOVED = ("ref", "ref_text", "reference_audio_url", "reference_text")
+VOICE_KEYS = ("actor_id", "actor_name", "model", "language", "speed", "tags", "track")
 TC = r"\d{1,2}:\d{2}(?::\d{2})?(?:[.,]\d{1,3})?"
 SHOT_RE = re.compile(r"^\s*(?:={2,}\s*(?P<a>.+?)\s*={2,}|#{2,}\s*(?P<b>.+?))\s*$")
 PAUSE_RE = re.compile(r"^\s*\[(?:pause|停顿)\s*(?P<s>[\d.]+)\s*(?:s|秒)?\]\s*$", re.I)
-NOTE_RE = re.compile(r"^\s*<!--\s*(?P<n>.*?)\s*-->\s*$")
+NOTE_RE = re.compile(r"^\s*(?:<!--\s*(?P<n>.*?)\s*-->|>\s*(?P<q>.+?))\s*$")  # `> 画面：…` (older scripts: HTML comment)
 TIME_RE = re.compile(r"^\s*(?:\[\s*(?P<a1>%s)\s*(?:[-–~→]+\s*(?P<a2>%s))?\s*\]|(?P<b1>%s)(?:\s*[-–~→]+\s*(?P<b2>%s))?(?=\s)|@(?P<c1>%s|\d+(?:\.\d+)?))\s*(?P<rest>.*)$"
                      % (TC, TC, TC, TC, TC))
 BRACKET_RE = re.compile(r"^\s*\[(?P<who>[^\]|｜]+)(?:[|｜](?P<emo>[^\]]+))?\]\s*[:：]?\s*(?P<text>.*)$")
@@ -102,6 +104,10 @@ def is_narrator(name, voices=None):
 def parse_voice(name, rest):
     v = {}
     for k, val in re.findall(r'(\w+)=("[^"]*"|\S+)', rest):
+        if k in REMOVED:
+            raise Fail("角色 %s 用了 %s=：音频链接直接克隆已停用（官方客户端 1.3.0 起只用账号里的角色）。先用 "
+                       "python3 scripts/miragea_audio.py create-actor --file 你的录音.wav --name 角色名称 建角色，"
+                       "再写 actor_id=角色ID 或 voice=角色名称" % (name, k))
         k, val = ALIASES.get(k, k), val.strip('"')
         if k == "speed":
             try:
@@ -113,10 +119,10 @@ def parse_voice(name, rest):
         elif k == "tags":
             val = [t for t in re.split(r"[,，]", val) if t]
         elif k not in VOICE_KEYS:
-            raise Fail("角色 %s 有未知参数 %s=（可用：actor_id ref ref_text speed model tags language track）" % (name, k))
+            raise Fail("角色 %s 有未知参数 %s=（可用：actor_id voice speed model tags language track）" % (name, k))
         v[k] = val
-    if v.get("actor_id") and v.get("reference_text"):
-        raise Fail("角色 %s：ref_text 只能和 ref= 一起用" % name)
+    if v.get("actor_id") and v.get("actor_name"):
+        raise Fail("角色 %s：actor_id= 和 voice= 只写一个" % name)
     return v
 
 
@@ -171,7 +177,7 @@ def parse_text(body, known, narrator):
             continue
         nm = NOTE_RE.match(s)
         if nm:
-            note = nm.group("n")
+            note = nm.group("n") or nm.group("q")
             continue
         s = re.sub(r"<!--.*?-->", "", s).strip()
         sm = SHOT_RE.match(s)
@@ -338,7 +344,7 @@ def write_wav(path, params, samples):
 
 
 def has_voice(v):
-    return bool(v.get("actor_id") or v.get("reference_audio_url"))
+    return bool(v.get("actor_id") or v.get("actor_name"))
 
 
 def speakers(lines):
@@ -408,13 +414,13 @@ def cmd_cast(a):
     voices, tmap, lines, kind = load(a.file, a.cast)
     sp = speakers(lines)
     tones = sorted({t for r in sp.values() for t in r["tones"]})
-    out = ["---", "# 每个说话人一行：actor_id=你在账号里克隆/保存的音色（miragea_audio.py actors 查询），",
-           "# 或本人授权的参考音频 ref=URL ref_text=\"音频里的原话\"；speed 0.25-4。旁白类名称自动进解说分轨。"]
+    out = ["---", "# 每个说话人一行：actor_id=账号里角色的ID，或 voice=角色名称（miragea_audio.py actors 查询；",
+           "# 没有角色先 create-actor 用本人授权录音创建）；speed 0.25-4。旁白类名称自动进解说分轨。"]
     for name, r in sorted(sp.items(), key=lambda x: (x[1]["track"] != "narration", -x[1]["lines"])):
         v = voices.get(name)
         if v:
-            opts = " ".join("%s=%s" % ({"reference_audio_url": "ref", "reference_text": "ref_text"}.get(k, k),
-                                       ",".join(x) if isinstance(x, list) else (json.dumps(x, ensure_ascii=False) if k == "reference_text" else x))
+            opts = " ".join("%s=%s" % ({"actor_name": "voice"}.get(k, k),
+                                       ",".join(x) if isinstance(x, list) else (json.dumps(x, ensure_ascii=False) if k == "actor_name" and " " in str(x) else x))
                             for k, x in v.items())
         else:
             opts = "actor_id=YOUR_CLONED_VOICE_ID speed=%s" % ("1.0" if r["track"] == "narration" else "1.0")
@@ -476,7 +482,7 @@ def preflight(a, voices, lines):
     sp = speakers(lines)
     missing = [r for r in sp if not has_voice(voices.get(r, {}))]
     if missing:
-        raise Fail("这些说话人还没有音色：%s。运行 cast %s -o cast.md，填入克隆音色的 actor_id（miragea_audio.py actors 查询）后加 --cast cast.md"
+        raise Fail("这些说话人还没有音色：%s。运行 cast %s -o cast.md，填入角色的 actor_id 或 voice=角色名称（miragea_audio.py actors 查询）后加 --cast cast.md"
                    % ("、".join(missing), a.file))
     fake = [r for r in sp if PLACEHOLDER_RE.match(str(voices[r].get("actor_id") or "x"))]
     if fake:
@@ -643,7 +649,7 @@ SELF_SCRIPT = """---
 @tones: 低沉=TAG_LOW
 ---
 === 镜1 | 测试 ===
-<!-- 画面：空镜 -->
+> 画面：空镜
 00:00:00.0 这是一句解说旁白。
 [00:00:03-00:00:04] 阿岚（低沉）：这一句台词明显超过了一秒钟的画面。
 @6 最后一句解说。
@@ -701,6 +707,12 @@ def cmd_selftest(a):
         open(s, "w", encoding="utf-8").write(SELF_SRT)
         v, tm, lines, kind = load(s)
         ok("识别 .txt 里的 SRT 内容", kind == "srt" and len(lines) == 2 and lines[1]["speaker"] == "阿岚" and lines[0]["slot"] == 2.5)
+        ok("音色写法 voice=角色名称", parse_voice("旁白", "voice=我的声音 speed=1.1") == {"actor_name": "我的声音", "speed": 1.1})
+        try:
+            parse_voice("旁白", "ref=https://example.com/a.wav")
+            ok("旧的音频链接写法给出迁移提示", False, "没有报错")
+        except Fail as e:
+            ok("旧的音频链接写法给出迁移提示", "create-actor" in str(e))
         ns = build_parser().parse_args(["build", p, "-o", os.path.join(tmp, "o3")])
         called = []
         real = globals()["generate_line"]

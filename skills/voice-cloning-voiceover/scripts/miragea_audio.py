@@ -12,7 +12,7 @@ import urllib.parse
 import urllib.request
 import uuid
 
-SKILL_VERSION = '1.1.0'
+SKILL_VERSION = '1.3.0'
 
 
 class ClientError(Exception):
@@ -54,10 +54,36 @@ class Client:
                 result = {'error': {'code': 'http_error', 'message': 'API returned HTTP ' + str(exc.code)}}
             raise ClientError({'http_status': exc.code, **result}) from None
         except (urllib.error.URLError, TimeoutError, OSError, ValueError) as exc:
-            raise ClientError({'error': {'code': 'request_failed', 'message': 'API request failed; submission outcome may be unknown. Reuse the same idempotency key for the same payload.'}}) from None
+            message = ('Role creation outcome may be unknown. List your roles and check the name before creating again.'
+                       if method == 'POST' and path == '/actors' else
+                       'API request failed; submission outcome may be unknown. Reuse the same idempotency key for the same payload.')
+            raise ClientError({'error': {'code': 'request_failed', 'message': message}}) from None
 
     def task(self, task_id, timeout=None):
         return self.request('GET', '/tasks/' + urllib.parse.quote(task_id, safe=''), timeout=timeout)
+
+    def resolve_actor_name(self, name):
+        name = name.strip()
+        if not name:
+            raise ValueError('Actor name must not be empty.')
+        offset = 0
+        matches = []
+        while True:
+            query = urllib.parse.urlencode({'limit': 100, 'offset': offset})
+            page = self.request('GET', '/actors?' + query)
+            items = page['items']
+            matches.extend(item for item in items if item['name'] == name)
+            if not page['has_more']:
+                break
+            if not items:
+                raise ClientError({'error': {'code': 'invalid_actor_page', 'message': 'Role listing returned an empty page with has_more=true.'}})
+            offset += len(items)
+        if not matches:
+            raise ClientError({'error': {'code': 'actor_not_found', 'message': 'No usable role has this exact name.', 'param': 'actor_name'}})
+        if len(matches) > 1:
+            raise ClientError({'error': {'code': 'ambiguous_actor_name', 'message': 'Multiple roles have this name. Choose one role ID.', 'param': 'actor_name'},
+                               'actors': matches})
+        return matches[0]['actor_id']
 
     def capabilities(self):
         result = self.request('GET', '/capabilities')
@@ -94,12 +120,13 @@ class Client:
             time.sleep(min(pause, max(0, deadline - time.monotonic())))
 
 
-def multipart(file_path, expected_rate):
+def multipart(file_path, fields):
     boundary = 'miragea-' + uuid.uuid4().hex
     filename = file_path.name.replace('"', '_').replace('\r', '_').replace('\n', '_')
     mime = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
-    prefix = (f'--{boundary}\r\nContent-Disposition: form-data; name="expected_rate"\r\n\r\n{expected_rate}\r\n'
-              f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="{filename}"\r\n'
+    form = ''.join(f'--{boundary}\r\nContent-Disposition: form-data; name="{name}"\r\n\r\n{value}\r\n'
+                   for name, value in fields.items())
+    prefix = (form + f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="{filename}"\r\n'
               f'Content-Type: {mime}\r\n\r\n').encode('utf-8')
     return prefix + file_path.read_bytes() + f'\r\n--{boundary}--\r\n'.encode(), 'multipart/form-data; boundary=' + boundary
 
@@ -144,14 +171,19 @@ def parser():
     actors = commands.add_parser('actors')
     actors.add_argument('--limit', type=int, default=20)
     actors.add_argument('--offset', type=int, default=0)
+    create_actor = commands.add_parser('create-actor')
+    create_actor.add_argument('--file', type=Path, required=True)
+    create_actor.add_argument('--name', required=True)
+    create_actor.add_argument('--language', default='en')
+    create_actor.add_argument('--gender', type=int, choices=(0, 1, 2), default=0)
+    create_actor.add_argument('--description')
     generate = commands.add_parser('generate')
     source = generate.add_mutually_exclusive_group(required=True)
     source.add_argument('--text')
     source.add_argument('--text-file', type=Path, help='UTF-8 text file')
     voice = generate.add_mutually_exclusive_group(required=True)
-    voice.add_argument('--reference-audio-url')
     voice.add_argument('--actor-id')
-    generate.add_argument('--reference-text')
+    voice.add_argument('--actor-name', help='Exact name of an existing role in this account')
     generate.add_argument('--model', choices=('expressive', 'standard'), help='Generation mode; omit to use the current default')
     generate.add_argument('--format', choices=('mp3', 'wav', 'flac', 'opus', 'aac', 'pcm'))
     generate.add_argument('--speed', type=float)
@@ -191,15 +223,25 @@ def main():
             result = client.request('GET', '/actors?' + query)
         elif args.command in ('task', 'wait'):
             result = client.wait(args.task_id, args.wait_timeout) if args.command == 'wait' else client.task(args.task_id)
+        elif args.command == 'create-actor':
+            capabilities = client.capabilities()
+            limits = capabilities['actors']['creation']
+            if args.file.stat().st_size > limits['max_upload_mb'] * 1024 * 1024:
+                raise ValueError('File exceeds capabilities.actors.creation.max_upload_mb.')
+            options = {'name': args.name, 'language': args.language, 'gender': args.gender, 'visibility': 'private'}
+            if args.description is not None:
+                options['description'] = args.description
+            body, content_type = multipart(args.file, {'request': json.dumps(options, ensure_ascii=False)})
+            result = client.request('POST', '/actors', body, content_type)
         else:
             submission_key = args.idempotency_key or str(uuid.uuid4())
             # Persist this line in the caller's tool transcript before a possibly uncertain POST.
             print(json.dumps({'idempotency_key': submission_key}, ensure_ascii=False), file=sys.stderr, flush=True)
             if args.command == 'generate':
-                if args.actor_id is not None and args.reference_text is not None:
-                    raise ValueError('--reference-text requires --reference-audio-url.')
-                payload = {'text': args.text if args.text is not None else args.text_file.read_text(encoding='utf-8')}
-                for field in ('actor_id', 'reference_audio_url', 'reference_text', 'model', 'format', 'speed', 'tags', 'language'):
+                actor_id = args.actor_id if args.actor_id is not None else client.resolve_actor_name(args.actor_name)
+                payload = {'text': args.text if args.text is not None else args.text_file.read_text(encoding='utf-8'),
+                           'actor_id': actor_id}
+                for field in ('model', 'format', 'speed', 'tags', 'language'):
                     value = getattr(args, field)
                     if value is not None:
                         payload[field] = value
@@ -209,10 +251,12 @@ def main():
                 rate = args.expected_rate if args.expected_rate is not None else capabilities['subtitles']['points_per_second']
                 if args.file.stat().st_size > capabilities['subtitles']['max_upload_mb'] * 1024 * 1024:
                     raise ValueError('File exceeds capabilities.subtitles.max_upload_mb.')
-                body, content_type = multipart(args.file, rate)
+                body, content_type = multipart(args.file, {'expected_rate': rate})
                 result = client.request('POST', '/subtitles/recognitions', body, content_type, submission_key)
             if args.wait and result.get('status') not in ('succeeded', 'failed'):
                 result = client.wait(result['task_id'], args.wait_timeout)
+            if args.command == 'generate':
+                result['actor_id'] = actor_id
             result['idempotency_key'] = submission_key
         if getattr(args, 'output', None) and result.get('status') != 'failed':
             save_result(result, args.output, args.subtitle_format)
@@ -221,6 +265,8 @@ def main():
     except ClientError as exc:
         if locals().get('submission_key'):
             exc.payload['idempotency_key'] = submission_key
+        if locals().get('actor_id'):
+            exc.payload['actor_id'] = actor_id
         print(json.dumps(exc.payload, ensure_ascii=False, indent=2))
         return 2
     except (OSError, ValueError, KeyError, TypeError) as exc:

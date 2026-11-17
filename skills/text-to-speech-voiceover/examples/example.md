@@ -1,5 +1,5 @@
 ---
-voice: actor_id=YOUR_ACTOR_ID speed=1.0
+voice: voice=我的声音 speed=1.0
 ---
 # 文字转语音示例：一段课程讲稿（一行一句）
 [voice] 欢迎来到第三课。

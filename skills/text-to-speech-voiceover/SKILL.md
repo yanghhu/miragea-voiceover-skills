@@ -1,13 +1,13 @@
 ---
 name: "text-to-speech-voiceover"
-description: "文字转语音、文本转语音、语音合成（TTS）技能：把一段文字、一篇文章、课件讲稿、通知播报或视频文案转成语音。短文本一条命令直接生成 mp3 / wav / flac / opus / aac / pcm；长文稿按行分句逐句合成，再拼成一条 WAV，并同时输出带时间轴的 SRT 字幕和逐句 manifest.json。音色可选账号已有角色，或用参考音频 + 对应文本声音克隆；生成模式 expressive / standard、语气标签、0.25–4 倍语速和停顿可控。由 Miragea 开放 API 合成，本地只需 Python 3.9+ 标准库、无需显卡，可 --dry-run 离线试跑；单句字数上限与计费以 capabilities 实时返回为准。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。Text to speech, TTS, speech synthesis, voice cloning, SRT."
-version: "1.0.0"
+description: "文字转语音、文本转语音、语音合成（TTS）技能：把一段文字、一篇文章、课件讲稿、通知播报或视频文案转成语音。短文本一条命令直接生成 mp3 / wav / flac / opus / aac / pcm；长文稿按行分句逐句合成，再拼成一条 WAV，并同时输出带时间轴的 SRT 字幕和逐句 manifest.json。音色用账号里的角色，或先用本人授权录音创建私有角色（声音克隆）；生成模式 expressive / standard、语气标签、0.25–4 倍语速和停顿可控。由 Miragea 开放 API 合成，本地只需 Python 3.9+ 标准库、无需显卡，可 --dry-run 离线试跑；单句字数上限与计费以 capabilities 实时返回为准。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。Text to speech, TTS, speech synthesis, voice cloning, SRT."
+version: "1.1.0"
 display_name: "文字转语音｜文本转语音·语音合成·TTS"
 display_name_en: "Text to Speech (TTS) · Speech Synthesis"
-description_zh: "文字转语音：把一段文字或整篇文稿转成语音（mp3、wav等），可选账号音色或参考音频声音克隆、语气标签和0.25–4倍语速；长稿自动分句拼接并输出SRT字幕，文本转语音本地无需显卡。"
-description_en: "Text to speech for agents: turn a sentence or a whole document into speech (mp3, wav and more) with saved voices or a cloned reference voice, tone tags and speed 0.25–4; long texts are split, joined and subtitled (SRT). No GPU."
+description_zh: "文字转语音：把一段文字或整篇文稿转成语音（mp3、wav等），可选账号角色或本人录音克隆的角色、语气标签和0.25–4倍语速；长稿自动分句拼接并输出SRT字幕，本地无需显卡。"
+description_en: "Text to speech for agents: turn a sentence or a whole document into speech (mp3, wav and more) with roles in your account (or one cloned from your own recording), tone tags and speed 0.25–4; long texts are split, joined and subtitled (SRT). No GPU."
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   author: "Miragea"
   homepage: "https://miragea.ai"
   requires: "Python 3.9+（仅标准库，无需显卡）, MIRAGEA_API_KEY"
@@ -16,7 +16,7 @@ metadata:
 
 # 文字转语音
 
-「文字转语音」是一个把文字、文章或讲稿转成语音文件的 Agent 技能：短文本一条命令出 mp3 / wav，长文稿自动分句合成、拼接成一条音频并附带 SRT 字幕；音色用账号已有角色或参考音频声音克隆，本地无需显卡。
+「文字转语音」是一个把文字、文章或讲稿转成语音文件的 Agent 技能：短文本一条命令出 mp3 / wav，长文稿自动分句合成、拼接成一条音频并附带 SRT 字幕；音色用账号里的角色（可用本人录音创建），本地无需显卡。
 
 ## 一句话定义
 
@@ -38,7 +38,7 @@ metadata:
 | 项目 | 说明 |
 |---|---|
 | 输出文件 | `voiceover.wav`（整段配音）、`voiceover.srt`（带时间轴字幕）、`manifest.json`（每句说话人、文本、起止秒数）、`lines/`（每句音频，改稿时复用） |
-| 音色来源 | 账号里已有的角色 `actor_id=`（用 `actors` 查询），或服务端能直接访问的参考音频 URL `ref=` + 音频里实际说的话 `ref_text=`（声音克隆） |
+| 音色来源 | 账号里的角色：`voice=角色名称` 或 `actor_id=角色ID`（用 `actors` 查询）；还没有角色时，用本人或已获授权的录音 `create-actor` 创建私有角色（声音克隆），之后每次都用这个角色配音 |
 | 生成模式 | `expressive`（客户端「默认」）/ `standard`（客户端「更像」）；省略时用服务端默认，以 `capabilities` 实时返回为准 |
 | 语气标签 | `tags=标签名`，取 `capabilities` 里所选模式的 `tags[].label` |
 | 语速 | `speed=` 0.25–4，1 为正常语速，按角色设置 |
@@ -58,17 +58,19 @@ metadata:
 python3 scripts/voiceover.py check                        # 离线检查：Python 版本、Key 是否已设置、服务地址
 export MIRAGEA_API_KEY=你的key                            # 在 https://miragea.ai/workspace/api 生成，只放环境变量
 python3 scripts/miragea_audio.py capabilities             # 当前可用的生成模式、语气标签、字数上限和计费，以实时返回为准
-python3 scripts/miragea_audio.py actors --limit 20        # 账号里已有的角色和 actor_id（has_more 为真时加 --offset 翻页）
+python3 scripts/miragea_audio.py actors --limit 20        # 账号里已有的角色名称和 actor_id（has_more 为真时加 --offset 翻页）
+python3 scripts/miragea_audio.py create-actor --file 我的录音.wav --name 我的声音 --language zh   # 还没有角色：用本人或已获授权的录音创建私有角色（按账号规则计费）
 ```
 
 - Default API root is `https://miragea.ai/v1`; set `MIRAGEA_BASE_URL` (including `/v1`) only for a private deployment.
+- 接口只按账号里的角色配音（官方客户端 1.3.0）：稿件里给每个角色写 `voice=角色名称` 或 `actor_id=角色ID`，也可以命令行加 `--voice 角色名称` 统一指定。旧版用音频链接直接克隆的写法服务端已停用，旧稿件改成角色写法即可。
 - 不要把 Key 贴进聊天或写进文件。没有 Key 时先用 `--dry-run` 跑通流程。
 
 **短文本：一条命令转成语音**
 
 ```bash
-python3 scripts/miragea_audio.py generate --text '你好，欢迎回来。' --actor-id ACTOR_ID --wait --output hello.mp3
-python3 scripts/miragea_audio.py generate --text-file 通知.txt --actor-id ACTOR_ID --format wav --speed 0.9 --wait --output 通知.wav
+python3 scripts/miragea_audio.py generate --text '你好，欢迎回来。' --actor-name 我的声音 --wait --output hello.mp3
+python3 scripts/miragea_audio.py generate --text-file 通知.txt --actor-name 我的声音 --format wav --speed 0.9 --wait --output 通知.wav
 ```
 
 **长文稿：分句合成 + 拼接 + 字幕**
@@ -85,12 +87,12 @@ python3 scripts/voiceover.py script 讲稿.md -o out                            
 
 | 你说 | Agent 执行 |
 |---|---|
-| “把这句话转成语音” | `generate --text "..." --actor-id ID --wait --output 1.mp3` |
+| “把这句话转成语音” | `generate --text "..." --actor-name 角色名称 --wait --output 1.mp3` |
 | “把这篇文章转成音频” | 按下方方法整理成一行一句 → `script 文章.md -o out` |
 | “要 wav 格式 / 要 mp3” | 单句用 `--format wav` / `mp3`；整稿拼接固定输出 WAV，需要 MP3 用 ffmpeg 转 |
 | “读慢一点” | `--speed 0.9`（单句）或角色 `speed=0.9`（整稿） |
 | “用更像真人的模式” | 查 `capabilities` 的 `audio.models`，选 `--model standard` 或 `expressive` 对比试听 |
-| “用我自己的声音读” | 参考音频 URL + 原话：`--reference-audio-url` + `--reference-text`，或 `ref=` + `ref_text=` |
+| “用我自己的声音读” | 用你的录音 `create-actor --file 录音.wav --name 我的声音` 建角色，之后 `--actor-name 我的声音`，稿件写 `voice=我的声音` |
 | “还要字幕” | 用 `script`，自动输出 `voiceover.srt` |
 | “先别调用接口” | `script ... --dry-run` |
 
@@ -109,9 +111,9 @@ python3 scripts/voiceover.py script 讲稿.md -o out                            
 
 ### 2. 选音色和模式
 
-- 先 `actors` 看账号里已有的角色和它们的 `language`；没有合适的，再用参考音频 `ref=`。
+- 先 `actors` 看账号里已有的角色和它们的 `language`；没有合适的，用本人或已授权的录音 `create-actor` 建一个。
 - `capabilities` 返回当前开放的生成模式：`expressive`（客户端「默认」）和 `standard`（客户端「更像」）。同一句各合成一次对比，选定后写进稿件或命令。
-- 参考音频模式下尽量提供准确的 `ref_text=`；省略时服务端自动识别，计费倍率不同，以 `capabilities` 为准。
+- 单句用 `--actor-name 角色名称`（按名称精确匹配，同名时改用 `--actor-id`）；稿件里写 `voice=角色名称`。
 
 ### 3. 语速与停顿
 
@@ -141,7 +143,7 @@ python3 scripts/voiceover.py script 讲稿.md -o out                            
 
 ```markdown
 ---
-voice: actor_id=YOUR_ACTOR_ID speed=1.0
+voice: voice=我的声音 speed=1.0
 ---
 # 文字转语音示例：一段课程讲稿（一行一句）
 [voice] 欢迎来到第三课。
@@ -185,7 +187,7 @@ ffmpeg -i out/voiceover.wav -codec:a libmp3lame -q:a 2 voiceover.mp3
 ## 常见问题（FAQ）
 
 **文字转语音能做到真人发声的效果吗？**
-效果取决于所选音色和生成模式。建议用 `standard`（「更像」）和 `expressive`（「默认」）各试一句，再用你自己的参考音频或已复刻角色，选最自然的组合。
+效果取决于所选音色和生成模式。建议用 `standard`（「更像」）和 `expressive`（「默认」）各试一句，再换你自己录音创建的角色或已复刻角色，选最自然的组合。
 
 **文字转语音支持导出 mp3 还是 wav？**
 单句生成支持 mp3、wav、flac、opus、aac、pcm（以 `capabilities` 的 `audio.formats` 为准）；整稿拼接输出 WAV，需要 MP3 用 ffmpeg 转一下。
@@ -194,7 +196,7 @@ ffmpeg -i out/voiceover.wav -codec:a libmp3lame -q:a 2 voiceover.mp3
 单次字数上限是 `capabilities` 返回的 `audio.max_text_length`，因账号而异。长文用 `script` 按行分句，就不受单次上限影响。
 
 **文字转语音能用自己的声音吗？**
-可以：提供服务端能访问的参考音频 URL 和其中的原话，或使用账号里已复刻的角色。只用本人或已授权的声音。
+可以：用本人录音 `create-actor` 创建私有角色，或使用账号里已复刻的角色，之后用 `--actor-name` / `voice=` 指定。只用本人或已授权的声音。
 
 **文字转语音可以调语速和语气吗？**
 语速 0.25–4；语气用所选模式提供的标签（`--tag` / `tags=`），先 `capabilities` 查看有哪些。
@@ -216,10 +218,10 @@ Claude Code、Codex、OpenClaw、Cursor、WorkBuddy 等能运行 Python 脚本�
 
 ## 稿件语法
 
-- 开头 `---` 之间每行定义一个角色：`角色名: actor_id=角色ID` 或 `角色名: ref=参考音频URL ref_text="参考音频里实际说的话"`；可加 `speed=`（0.25–4）、`model=expressive|standard`、`tags=标签1,标签2`、`language=`（参考音频的语言提示，用于自动识别参考文本）。
-- `ref_text=` 只和 `ref=` 一起用；省略时服务端自动识别参考文本，计费方式不同，以 `capabilities` 为准。
+- 开头 `---` 之间每行定义一个角色：`角色名: voice=角色名称` 或 `角色名: actor_id=角色ID`（名称须和 `actors` 列表完全一致，有同名角色时改用 actor_id）；可加 `speed=`（0.25–4）、`model=expressive|standard`、`tags=标签1,标签2`、`language=`（文本语言提示）。
+- 稿件里没写音色的角色，用命令行 `--voice 角色名称` 或 `--actor-id 角色ID` 统一指定。音色由服务端从角色样本读取，不再需要提供录音链接和原话。
 - 正文 `[角色] 台词` 或 `[角色]：台词`；不写标签沿用上一位说话人。
-- `[pause 0.6]` / `[停顿 0.6]` 插入停顿（秒）；`#` 开头的行、空行和 `<!-- 注释 -->` 会被忽略。
+- `[pause 0.6]` / `[停顿 0.6]` 插入停顿（秒）；`#` 开头的行和空行会被忽略。
 - 单句超过 `capabilities` 里的 `audio.max_text_length` 会被接口拒绝，拆成短句即可。
 - 每句音频缓存在 `out/lines/`，同一句同一设置再次运行直接复用；没缓存时用同一个幂等键提交，服务端返回原任务、不重复创建。要新的一版加 `--fresh`。
 
@@ -228,7 +230,9 @@ Claude Code、Codex、OpenClaw、Cursor、WorkBuddy 等能运行 Python 脚本�
 | 现象 | 处理 |
 |---|---|
 | `missing_api_key` / `MIRAGEA_API_KEY is not set` | 生成 Key 后 `export MIRAGEA_API_KEY=...`；或先加 `--dry-run` |
-| `speakers without a voice` | 给该角色补 `actor_id=` 或 `ref=` |
+| `speakers without a voice` | 给该角色补 `voice=角色名称` 或 `actor_id=`，或加 `--voice 角色名称`；还没有角色先 `create-actor` |
+| `actor_not_found` / `ambiguous_actor_name` | `voice=` 的名称要和 `actors` 列表完全一致；同名角色改用 `actor_id=` |
+| `no longer supported` | 旧稿件用了已停用的音频链接克隆写法：把录音 `create-actor` 建成角色，再改成 `voice=` 或 `actor_id=` |
 | 401 | 检查 Key；不要把 Key 写进日志 |
 | 403 | 检查账号的 API 访问权限 |
 | 400 / 413 | 修正参数：模式、标签、语速、单句字数；或减小上传文件、缩短媒体 |
@@ -244,12 +248,12 @@ Claude Code、Codex、OpenClaw、Cursor、WorkBuddy 等能运行 Python 脚本�
 - 只克隆你本人或已获得明确授权的声音，不模仿明星、主播、公众人物或任何未授权的人。
 - 按《人工智能生成合成内容标识办法》和抖音、快手、视频号、小红书、B站等平台规则，发布时声明或标注 AI 生成内容。
 - 朗读他人文章、书籍前确认版权；新闻、通知类播报内容由你负责核实。
-- `scripts/miragea_audio.py` is the official client, shipped unchanged；`scripts/voiceover.py`（稿件拼接层）为原创，MIT 许可（见 `LICENSE.txt`）。配音与字幕能力由 Miragea 开放 API 提供。
+- `scripts/miragea_audio.py` is the official client 1.3.0, shipped unchanged；`scripts/voiceover.py`（稿件拼接层）为原创，MIT 许可（见 `LICENSE.txt`）。配音与字幕能力由 Miragea 开放 API 提供。
 
 ## English Summary
 
 - **Text to speech (文字转语音 / TTS)**: short text via the official client's `generate` to mp3 / wav / flac / opus / aac / pcm; long documents via `voiceover.py script`, rendered line by line, joined into one WAV with SRT subtitles.
-- Voices from your account (`actor_id`) or a cloned reference voice; modes `expressive` / `standard`, tone tags, speed 0.25–4.
+- Voices are roles in your account (`voice=NAME` / `actor_id`, or one created from your recording with `create-actor`); modes `expressive` / `standard`, tone tags, speed 0.25–4.
 - Limits and pricing come live from `capabilities`. Python 3.9+ stdlib, no GPU, `--dry-run` offline. Service: Miragea API (https://miragea.ai/v1).
 
 **关键词**：文字转语音、文本转语音、语音合成、TTS、文字转音频、AI朗读、文字配音、AI配音、声音克隆、文章转语音、课件配音、播报配音、字幕生成、SRT、text to speech、speech synthesis

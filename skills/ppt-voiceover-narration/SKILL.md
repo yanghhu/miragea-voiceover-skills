@@ -1,13 +1,13 @@
 ---
 name: "ppt-voiceover-narration"
-description: "PPT配音、课件配音、PPT转视频、AI旁白技能：把 PPT / Keynote / 课件每一页的讲稿写进一个文件（用 `=== 第1页 ===` 分页），一条命令逐页配音，每页输出独立的 WAV 和 SRT 字幕，再自动拼成整段旁白 narration.wav、整段字幕 narration.srt，并生成每页起止时间 slides.json 和 ffmpeg 图片拼接清单 concat.txt，把导出的幻灯片图片按每页配音时长合成讲解视频。改一页讲稿只重配那一页的改动句。可用账号里的角色或本人授权的参考音频声音。由 Miragea 开放 API 生成语音，本地只需 Python 3.9+ 标准库、无需显卡，可 --dry-run 离线试跑；计费与限额以 capabilities 实时返回为准。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。PPT narration, slide voiceover, courseware narration, SRT."
-version: "1.0.0"
+description: "PPT配音、课件配音、PPT转视频、AI旁白技能：把 PPT / Keynote / 课件每一页的讲稿写进一个文件（用 `=== 第1页 ===` 分页），一条命令逐页配音，每页输出独立的 WAV 和 SRT 字幕，再自动拼成整段旁白 narration.wav、整段字幕 narration.srt，并生成每页起止时间 slides.json 和 ffmpeg 图片拼接清单 concat.txt，把导出的幻灯片图片按每页配音时长合成讲解视频。改一页讲稿只重配那一页的改动句。可用账号里的角色，或用本人授权录音创建的角色。由 Miragea 开放 API 生成语音，本地只需 Python 3.9+ 标准库、无需显卡，可 --dry-run 离线试跑；计费与限额以 capabilities 实时返回为准。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy。PPT narration, slide voiceover, courseware narration, SRT."
+version: "1.1.0"
 display_name: "PPT配音｜课件配音·PPT转视频·AI旁白"
 display_name_en: "PPT Voiceover · Slide Narration with Subtitles"
 description_zh: "PPT配音：把PPT或课件每一页的讲稿一次配好音，逐页生成配音和SRT字幕，自动拼成整段旁白，并给出每页时长和幻灯片视频拼接清单，适合微课、培训课件、产品演示等场景，本地无需显卡。"
 description_en: "PPT voiceover: voice the speaker notes of every slide in one run, get per-slide audio and SRT, a joined narration track, per-slide timings and an ffmpeg concat list to turn exported slides into a video. No GPU."
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   author: "Miragea"
   homepage: "https://miragea.ai"
   requires: "Python 3.9+（仅标准库，无需显卡）, MIRAGEA_API_KEY"
@@ -38,7 +38,7 @@ PPT配音 = 一个按页分好的讲稿文件 → `slides.py build` → 每页 `
 | 项目 | 说明 |
 |---|---|
 | 输出文件 | `voiceover.wav`（整段配音）、`voiceover.srt`（带时间轴字幕）、`manifest.json`（每句说话人、文本、起止秒数）、`lines/`（每句音频，改稿时复用） |
-| 音色来源 | 账号里已有的角色 `actor_id=`（用 `actors` 查询），或服务端能直接访问的参考音频 URL `ref=` + 音频里实际说的话 `ref_text=`（声音克隆） |
+| 音色来源 | 账号里的角色：`voice=角色名称` 或 `actor_id=角色ID`（用 `actors` 查询）；还没有角色时，用本人或已获授权的录音 `create-actor` 创建私有角色（声音克隆），之后每次都用这个角色配音 |
 | 生成模式 | `expressive`（客户端「默认」）/ `standard`（客户端「更像」）；省略时用服务端默认，以 `capabilities` 实时返回为准 |
 | 语气标签 | `tags=标签名`，取 `capabilities` 里所选模式的 `tags[].label` |
 | 语速 | `speed=` 0.25–4，1 为正常语速，按角色设置 |
@@ -68,10 +68,12 @@ PPT配音 = 一个按页分好的讲稿文件 → `slides.py build` → 每页 `
 python3 scripts/voiceover.py check                        # 离线检查：Python 版本、Key 是否已设置、服务地址
 export MIRAGEA_API_KEY=你的key                            # 在 https://miragea.ai/workspace/api 生成，只放环境变量
 python3 scripts/miragea_audio.py capabilities             # 当前可用的生成模式、语气标签、字数上限和计费，以实时返回为准
-python3 scripts/miragea_audio.py actors --limit 20        # 账号里已有的角色和 actor_id（has_more 为真时加 --offset 翻页）
+python3 scripts/miragea_audio.py actors --limit 20        # 账号里已有的角色名称和 actor_id（has_more 为真时加 --offset 翻页）
+python3 scripts/miragea_audio.py create-actor --file 我的录音.wav --name 我的声音 --language zh   # 还没有角色：用本人或已获授权的录音创建私有角色（按账号规则计费）
 ```
 
 - Default API root is `https://miragea.ai/v1`; set `MIRAGEA_BASE_URL` (including `/v1`) only for a private deployment.
+- 接口只按账号里的角色配音（官方客户端 1.3.0）：稿件里给每个角色写 `voice=角色名称` 或 `actor_id=角色ID`，也可以命令行加 `--voice 角色名称` 统一指定。旧版用音频链接直接克隆的写法服务端已停用，旧稿件改成角色写法即可。
 - 不要把 Key 贴进聊天或写进文件。没有 Key 时先用 `--dry-run` 跑通流程。
 
 ```bash
@@ -84,7 +86,7 @@ python3 scripts/slides.py build 讲稿.md -o out                         # 正�
 
 ```bash
 # 单句试听（官方客户端；--output 不会覆盖已有文件，换个新文件名）
-python3 scripts/miragea_audio.py generate --text '开头第一句' --actor-id ACTOR_ID --wait --output test1.mp3
+python3 scripts/miragea_audio.py generate --text '开头第一句' --actor-name 我的声音 --wait --output test1.mp3
 ```
 
 ## 你说什么 → Agent 执行
@@ -97,7 +99,7 @@ python3 scripts/miragea_audio.py generate --text '开头第一句' --actor-id AC
 | “做成视频” | 把 PPT 导出为图片 `01.png`、`02.png`… 放进 `out/` → 运行 `concat.txt` 第一行的 ffmpeg 命令 |
 | “要带字幕的视频” | 在 ffmpeg 里加 `-vf subtitles=narration.srt`，或把 `narration.srt` 导入剪映 |
 | “讲慢一点 / 每页之间停久一点” | 角色 `speed=0.9`；`--page-gap 1.5` |
-| “用我自己的声音” | 稿件里写 `ref=参考音频URL ref_text="原话"`，或用账号里已复刻的 `actor_id=` |
+| “用我自己的声音” | 用你的录音 `create-actor` 建角色，稿件里写 `voice=角色名称`（或 `actor_id=`） |
 | “先别调用接口” | `slides.py build ... --dry-run` |
 
 ## PPT配音讲稿方法
@@ -160,10 +162,9 @@ teacher: actor_id=YOUR_ACTOR_ID speed=0.95
 ```bash
 # 1. 在 PowerPoint / WPS / Keynote 里“导出为图片”，按页码命名 01.png、02.png… 放进 out/
 # 2. 合成视频（需要本机 ffmpeg；concat.txt 里已按每页配音时长写好）
-cd out
-ffmpeg -f concat -safe 0 -i concat.txt -i narration.wav -c:v libx264 -pix_fmt yuv420p -r 30 -c:a aac -shortest slides.mp4
+ffmpeg -f concat -safe 0 -i out/concat.txt -i out/narration.wav -c:v libx264 -pix_fmt yuv420p -r 30 -c:a aac -shortest out/slides.mp4
 # 3. 烧录字幕（可选）
-ffmpeg -i slides.mp4 -vf subtitles=narration.srt -c:a copy slides_sub.mp4
+ffmpeg -i out/slides.mp4 -vf subtitles=out/narration.srt -c:a copy out/slides_sub.mp4
 ```
 
 图片命名不同可用 `--image-pattern "slide%d.jpg"`。也可以把 `narration.wav`、`narration.srt` 导入剪映 / CapCut / Premiere，按 `slides.json` 里每页的起止秒数摆放图片。
@@ -195,7 +196,7 @@ ffmpeg -i slides.mp4 -vf subtitles=narration.srt -c:a copy slides_sub.mp4
 分页标记下面留空即可，这一页不会调用接口，`slides.json` 里记为静默页。
 
 **可以用老师本人的声音给课件配音吗？**
-可以，在讲稿开头用 `ref=参考音频URL ref_text="原话"`，或使用账号里已复刻的角色 `actor_id=`；须取得本人同意。
+可以，用老师本人录音 `create-actor` 创建私有角色，在讲稿开头写 `voice=角色名称`（或 `actor_id=`）；须取得本人同意。
 
 **一页讲稿太长被接口拒绝怎么办？**
 接口按单句提交，单句字数上限以 `capabilities` 的 `audio.max_text_length` 为准，把长句拆成几行即可。
@@ -208,10 +209,10 @@ ffmpeg -i slides.mp4 -vf subtitles=narration.srt -c:a copy slides_sub.mp4
 
 ## 稿件语法
 
-- 开头 `---` 之间每行定义一个角色：`角色名: actor_id=角色ID` 或 `角色名: ref=参考音频URL ref_text="参考音频里实际说的话"`；可加 `speed=`（0.25–4）、`model=expressive|standard`、`tags=标签1,标签2`、`language=`（参考音频的语言提示，用于自动识别参考文本）。
-- `ref_text=` 只和 `ref=` 一起用；省略时服务端自动识别参考文本，计费方式不同，以 `capabilities` 为准。
+- 开头 `---` 之间每行定义一个角色：`角色名: voice=角色名称` 或 `角色名: actor_id=角色ID`（名称须和 `actors` 列表完全一致，有同名角色时改用 actor_id）；可加 `speed=`（0.25–4）、`model=expressive|standard`、`tags=标签1,标签2`、`language=`（文本语言提示）。
+- 稿件里没写音色的角色，用命令行 `--voice 角色名称` 或 `--actor-id 角色ID` 统一指定。音色由服务端从角色样本读取，不再需要提供录音链接和原话。
 - 正文 `[角色] 台词` 或 `[角色]：台词`；不写标签沿用上一位说话人。
-- `[pause 0.6]` / `[停顿 0.6]` 插入停顿（秒）；`#` 开头的行、空行和 `<!-- 注释 -->` 会被忽略。
+- `[pause 0.6]` / `[停顿 0.6]` 插入停顿（秒）；`#` 开头的行和空行会被忽略。
 - 单句超过 `capabilities` 里的 `audio.max_text_length` 会被接口拒绝，拆成短句即可。
 - 每句音频缓存在 `out/lines/`，同一句同一设置再次运行直接复用；没缓存时用同一个幂等键提交，服务端返回原任务、不重复创建。要新的一版加 `--fresh`。
 
@@ -220,7 +221,9 @@ ffmpeg -i slides.mp4 -vf subtitles=narration.srt -c:a copy slides_sub.mp4
 | 现象 | 处理 |
 |---|---|
 | `missing_api_key` / `MIRAGEA_API_KEY is not set` | 生成 Key 后 `export MIRAGEA_API_KEY=...`；或先加 `--dry-run` |
-| `speakers without a voice` | 给该角色补 `actor_id=` 或 `ref=` |
+| `speakers without a voice` | 给该角色补 `voice=角色名称` 或 `actor_id=`，或加 `--voice 角色名称`；还没有角色先 `create-actor` |
+| `actor_not_found` / `ambiguous_actor_name` | `voice=` 的名称要和 `actors` 列表完全一致；同名角色改用 `actor_id=` |
+| `no longer supported` | 旧稿件用了已停用的音频链接克隆写法：把录音 `create-actor` 建成角色，再改成 `voice=` 或 `actor_id=` |
 | 401 | 检查 Key；不要把 Key 写进日志 |
 | 403 | 检查账号的 API 访问权限 |
 | 400 / 413 | 修正参数：模式、标签、语速、单句字数；或减小上传文件、缩短媒体 |
@@ -236,7 +239,7 @@ ffmpeg -i slides.mp4 -vf subtitles=narration.srt -c:a copy slides_sub.mp4
 - 只克隆你本人或已获得明确授权的声音，不模仿明星、主播、公众人物或任何未授权的人。
 - 按《人工智能生成合成内容标识办法》和抖音、快手、视频号、小红书、B站等平台规则，发布时声明或标注 AI 生成内容。
 - 课件里引用的图片、视频、字体和他人作品须有使用授权；用老师 / 讲师本人声音须取得本人同意。
-- `scripts/miragea_audio.py` is the official client, shipped unchanged；`scripts/voiceover.py`（稿件拼接层）为原创，MIT 许可（见 `LICENSE.txt`）。配音与字幕能力由 Miragea 开放 API 提供。
+- `scripts/miragea_audio.py` is the official client 1.3.0, shipped unchanged；`scripts/voiceover.py`（稿件拼接层）为原创，MIT 许可（见 `LICENSE.txt`）。配音与字幕能力由 Miragea 开放 API 提供。
 
 ## English Summary
 

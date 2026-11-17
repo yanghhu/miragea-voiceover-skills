@@ -10,11 +10,12 @@ SCRIPT can be
                               optional shot headers `=== 镜1 ===` / `## 第1场`, `[pause 0.5]`,
                               optional time anchors `@00:12.5 角色：台词` to lock a line to the picture
   * a storyboard table (.csv / .tsv) with columns such as 镜号 / 角色 / 台词 / 情绪 / 开始 / 时长 / 语速
-  * subtitles (.srt) whose cue text is `角色：台词` — every line is placed at its cue start time
+  * subtitles (.srt, or SRT text saved as .txt) whose cue text is `角色：台词` — every line is placed at its cue start time
 
 Voices: a front matter block (in SCRIPT or in a separate --cast file) gives every role one voice:
   角色: actor_id=ID [speed=1.0] [model=expressive|standard] [tags=a,b]
-  角色: ref=https://.../sample.wav ref_text="原话"
+  角色: voice=ROLE_NAME [speed=1.0]          (exact role name in the account)
+  (roles only: cloning from a reference audio URL, ref=, was removed in client 1.3.0)
   @emotions: 愤怒=TAG_LABEL, 低语=TAG_LABEL      (map script emotions to the account's tag labels)
 
 Each line is rendered once with `miragea_audio.py generate --format wav --wait` (cached in OUT/lines/,
@@ -44,11 +45,12 @@ import wave
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from voiceover import ScriptError, generate_line, payload_for, read_wav, split_caption, ts  # noqa: E402
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 DRY_RATE = 24000
 NARRATOR_NAMES = ("旁白", "画外音", "OS", "narrator", "Narrator", "NARRATOR")
-ALIASES = {"ref": "reference_audio_url", "ref_text": "reference_text", "actor": "actor_id"}
-VOICE_KEYS = ("actor_id", "reference_audio_url", "reference_text", "model", "language", "speed", "tags")
+ALIASES = {"actor": "actor_id", "voice": "actor_name", "name": "actor_name"}
+REMOVED = ("ref", "ref_text", "reference_audio_url", "reference_text")
+VOICE_KEYS = ("actor_id", "actor_name", "model", "language", "speed", "tags")
 SHOT_RE = re.compile(r"^\s*(?:={2,}\s*(?P<a>.+?)\s*={2,}|#{2,}\s*(?P<b>.+?))\s*$")
 PAUSE_RE = re.compile(r"^\s*\[(?:pause|停顿)\s*(?P<s>[\d.]+)\s*s?\]\s*$", re.I)
 ANCHOR_RE = re.compile(r"^\s*@(?P<t>\d{1,2}:\d{1,2}(?::\d{1,2})?(?:[.,]\d+)?|\d+(?:\.\d+)?)\s+(?P<rest>.*)$")
@@ -84,6 +86,10 @@ def seconds(v):
 def parse_voice(name, rest):
     v = {}
     for k, val in re.findall(r'(\w+)=("[^"]*"|\S+)', rest):
+        if k in REMOVED:
+            raise ScriptError("role %s uses %s=: cloning from a reference audio URL was removed (client 1.3.0). Create a role "
+                              "with `miragea_audio.py create-actor --file my.wav --name NAME`, then write actor_id=ROLE_ID or "
+                              "voice=ROLE_NAME. 音频链接直接克隆已停用，请改用账号角色。" % (name, k))
         k, val = ALIASES.get(k, k), val.strip('"')
         if k == "speed":
             val = float(val)
@@ -94,8 +100,8 @@ def parse_voice(name, rest):
         elif k not in VOICE_KEYS:
             raise ScriptError("unknown voice option %s= (role %s)" % (k, name))
         v[k] = val
-    if v.get("actor_id") and v.get("reference_text"):
-        raise ScriptError("ref_text only goes with ref= (role %s)" % name)
+    if v.get("actor_id") and v.get("actor_name"):
+        raise ScriptError("use either actor_id= or voice= (role %s)" % name)
     return v
 
 
@@ -217,7 +223,15 @@ def parse_srt(text, known):
     return lines
 
 
+def looks_like_srt(text):
+    """SRT content saved under any extension (e.g. .txt, for platforms that refuse .srt uploads)."""
+    return re.search(r"(^|\n)\s*\d+\s*\n\s*\d+:\d+:\d+[,.]\d+\s*-->", text[:4000]) is not None
+
+
 def load(script, cast=None):
+    for path in (script, cast):
+        if path and not os.path.isfile(path):
+            raise ScriptError("找不到文件 %s，请检查路径（示例文件在 examples/ 目录） / file not found" % path)
     with open(script, encoding="utf-8-sig") as f:
         raw = f.read()
     voices, emap, body = split_front(raw)
@@ -229,7 +243,7 @@ def load(script, cast=None):
     low = script.lower()
     if low.endswith((".csv", ".tsv")):
         lines = parse_table(script)
-    elif low.endswith(".srt"):
+    elif low.endswith(".srt") or looks_like_srt(body):
         lines = parse_srt(body, set(voices))
     else:
         lines = parse_text_script(body, set(voices))
@@ -290,13 +304,13 @@ def cmd_cast(a):
     voices, emap, lines = load(a.file, a.cast)
     roles = roles_of(lines)
     emotions = sorted({e for r in roles.values() for e in r["emotions"]})
-    out = ["---", "# 每个角色一行：用你账号里已克隆 / 已保存的音色 actor_id（miragea_audio.py actors 查询），",
-           "# 或本人授权的参考音频 ref=URL ref_text=\"音频里的原话\"。speed 0.25-4。"]
+    out = ["---", "# 每个角色一行：actor_id=账号里角色的ID，或 voice=角色名称（miragea_audio.py actors 查询；",
+           "# 没有角色先 create-actor 用本人授权录音创建）。speed 0.25-4。"]
     for name, r in sorted(roles.items(), key=lambda x: -x[1]["lines"]):
         if name in voices:
             v = voices[name]
-            opts = " ".join("%s=%s" % ({"reference_audio_url": "ref", "reference_text": "ref_text"}.get(k, k),
-                                       ",".join(x) if isinstance(x, list) else (json.dumps(x, ensure_ascii=False) if k == "reference_text" else x))
+            opts = " ".join("%s=%s" % ({"actor_name": "voice"}.get(k, k),
+                                       ",".join(x) if isinstance(x, list) else (json.dumps(x, ensure_ascii=False) if k == "actor_name" and " " in str(x) else x))
                             for k, x in v.items())
         else:
             opts = "actor_id=YOUR_CLONED_VOICE_ID speed=1.0"
@@ -329,7 +343,7 @@ def cmd_check(a):
             continue
         at = (" @%s" % ts(l["start"])[3:]) if l.get("start") is not None else ""
         print("%3d  %-8s %-6s%s  %s" % (i, l["speaker"], l.get("emotion") or "-", at, l["text"][:48]))
-    missing = [r for r in roles if not (voices.get(r, {}).get("actor_id") or voices.get(r, {}).get("reference_audio_url"))]
+    missing = [r for r in roles if not (voices.get(r, {}).get("actor_id") or voices.get(r, {}).get("actor_name"))]
     unmapped = sorted({l["emotion"] for l in lines if l.get("emotion") and l["emotion"] not in emap})
     if missing:
         print("roles without a voice: %s  ->  python3 scripts/drama_dub.py cast %s -o cast.md" % ("、".join(missing), a.file))
@@ -379,10 +393,10 @@ def cmd_build(a):
             n += 1
             l["_n"] = n
     if not a.dry_run:
-        missing = [r for r in roles if not (voices.get(r, {}).get("actor_id") or voices.get(r, {}).get("reference_audio_url"))]
+        missing = [r for r in roles if not (voices.get(r, {}).get("actor_id") or voices.get(r, {}).get("actor_name"))]
         if missing:
-            raise ScriptError("roles without a voice: %s. Run `drama_dub.py cast %s -o cast.md`, fill in your cloned "
-                              "voice actor_id (from `miragea_audio.py actors`) and pass --cast cast.md" % ("、".join(missing), a.file))
+            raise ScriptError("roles without a voice: %s. Run `drama_dub.py cast %s -o cast.md`, fill in the role's "
+                              "actor_id or voice=ROLE_NAME (from `miragea_audio.py actors`) and pass --cast cast.md" % ("、".join(missing), a.file))
         if not os.environ.get("MIRAGEA_API_KEY"):
             raise ScriptError("MIRAGEA_API_KEY is not set (or add --dry-run to test offline)")
     locked = any(l.get("start") is not None for l in lines) and not a.sequential

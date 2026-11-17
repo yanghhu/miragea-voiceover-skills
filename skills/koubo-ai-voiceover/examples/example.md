@@ -1,7 +1,7 @@
 ---
-me: actor_id=YOUR_ACTOR_ID speed=1.08
+me: voice=我的口播 speed=1.08
 ---
-# 知识口播示例：把 actor_id 换成你的口播音色
+# 知识口播示例：把 voice= 换成你账号里口播角色的名称（或写 actor_id=角色ID）
 [me] 大多数人存不下钱，不是因为赚得少。
 [pause 0.3]
 是因为钱一到账，就先花了。
