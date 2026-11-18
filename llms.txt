@@ -1,8 +1,8 @@
 # Miragea AI 配音与字幕技能合集 (miragea-voiceover-skills)
 
-> 10 个 Agent Skills（SKILL.md 格式）：AI配音、口播配音、电影解说配音、文字转语音、声音克隆、字幕生成、小说推文配音、PPT配音、AI播客、漫剧配音。文字稿逐句调用 Miragea 官方客户端生成配音，本地拼成整段 WAV，并输出带时间轴的 SRT 字幕和逐句 manifest.json；音色用账号已有角色或参考音频声音克隆；已有音视频可识别为 SRT / TXT / JSON。本地只需 Python 3.9+ 标准库、无需显卡；单句字数、限额和计费以 capabilities 实时返回为准。服务：Miragea 开放 API（https://miragea.ai/v1）。
+> 19 个 Agent Skills（SKILL.md 格式）：AI配音、口播配音、电影解说配音、文字转语音、声音克隆、字幕生成、小说推文配音、PPT配音、AI播客、漫剧配音、视频文案提取、AI有声书、叫卖录音、彩铃制作、听写音频、游戏配音、冥想引导、广告配音、视频翻译。文字稿逐句调用 Miragea 官方客户端生成配音，本地拼成整段 WAV，并输出带时间轴的 SRT 字幕和逐句 manifest.json；音色用账号里的角色（可用本人录音创建私有角色）；已有音视频可识别为 SRT / TXT / JSON。本地只需 Python 3.9+ 标准库、无需显卡；单句字数、限额和计费以 capabilities 实时返回为准。服务：Miragea 开放 API（https://miragea.ai/v1）。
 
-AI voiceover & subtitle skills for agents: script in, multi-voice voiceover WAV + timed SRT + per-line timing JSON out, via the official Miragea client (generate / recognize). Saved voices or voice cloning from a reference clip; speech-to-subtitles for existing media. No GPU.
+AI voiceover & subtitle skills for agents: script in, multi-voice voiceover WAV + timed SRT + per-line timing JSON out, via the official Miragea client (generate / recognize). Roles in your account (create a private role from your own recording); speech-to-subtitles for existing media. No GPU.
 
 ## Skills
 
@@ -16,12 +16,21 @@ AI voiceover & subtitle skills for agents: script in, multi-voice voiceover WAV 
 - [PPT配音](skills/ppt-voiceover-narration/SKILL.md): PPT配音：把PPT或课件每一页的讲稿一次配好音，逐页生成配音和SRT字幕，自动拼成整段旁白，并给出每页时长和幻灯片视频拼接清单，适合微课、培训课件、产品演示等场景，本地无需显卡。 (PPT Voiceover · Slide Narration with Subtitles)
 - [AI播客](skills/ai-podcast-voiceover/SKILL.md): AI播客：把文章、笔记或对谈稿做成单人或双人播客音频，逐句配音拼成整期节目，同时输出SRT字幕、带时间戳的章节列表和节目文字稿，适合知识分享、公众号音频版和品牌播客，本地无需显卡。 (AI Podcast · Solo or Two-Host Episode Voiceover)
 - [漫剧配音](skills/ai-drama-dubbing/SKILL.md): 漫剧配音：AI漫剧、短剧、动画的剧本、分镜表或SRT字幕按角色分配克隆音色，逐句带情绪配音并按时间码对轨，输出整段配音、角色分轨WAV和SRT字幕，超时台词自动提示，本地无需显卡。 (AI Comic & Short Drama Dubbing · Multi-Voice · Stems + SRT; scripts/drama_dub.py cast/check/build, --dry-run without a key)
+- [视频文案提取](skills/video-script-extract/SKILL.md): 视频文案提取：上传本地视频或音频，自动识别语音提取口播文案，导出TXT文字稿和带时间轴SRT字幕；改写成自己的原创文案后，用声音克隆一键重新配音，适合口播、课程、访谈整理，无需显卡。 (Video Script Extract · Speech to Text · Rewrite and Re-voice)
+- [AI有声书](skills/ai-audiobook-maker/SKILL.md): AI有声书制作：把小说或长篇TXT自动识别章节，用你自己的克隆音色逐章配音，每章输出一个音频和LRC歌词字幕，生成播放列表；对白可换第二个音色，断点续跑，本地无需显卡，可离线试跑。 (AI Audiobook Maker · Novel to Audiobook · Chapter Audio)
+- [叫卖录音](skills/jiaomai-shout-recording/SKILL.md): 叫卖录音制作：输入地摊、水果摊、门店促销或超市广播的叫卖词，用你自己的克隆音色生成响亮清晰的喊话录音，自动循环成10分钟等长音频，可加叮咚提示音，导出给喇叭和扩音器播放，可离线试跑。 (Hawker Shout Recording · Stall Calls · Shop Announcements)
+- [彩铃制作](skills/ringback-ivr-prompts/SKILL.md): 彩铃制作：企业彩铃和IVR语音导航一次做好，欢迎语、按键菜单等话术一行一条，用你自己的克隆音色批量生成电话提示音，导出8k/16k、PCM或A-law格式，拼出循环彩铃，可离线试跑。 (Ringback Tone Maker · IVR Phone Menu · Call Prompts)
+- [听写音频](skills/dictation-audio/SKILL.md): 听写音频一键生成：把语文词语或英语单词表一行一个写好，自动编号、每词读两遍、留出书写时间，用老师或家长自己的克隆音色生成整段听写音频，附答案和LRC字幕，可打乱顺序，可离线试跑。 (Dictation Audio · English Words · Chinese Words)
+- [游戏配音](skills/game-voice-pack/SKILL.md): 游戏配音批量生成：把NPC台词写成CSV表格，每行一个编号和角色，按角色套用你的克隆音色，自动输出按编号命名的、分角色文件夹的语音文件和清单，改一行只重配一行，也可离线试跑。 (Game Voice Pack · Batch Voiceover · NPC Lines)
+- [冥想引导](skills/meditation-sleep-guide/SKILL.md): 冥想引导音频制作：把引导语稿子配成慢语速语音，自动按目标分钟数分配段间长停顿，也可写固定停顿，用你自己的克隆音色输出音频、字幕和时间表，改一段只重配一段，无需显卡可离线试跑。 (Meditation Guide · Sleep Audio · Relaxation)
+- [广告配音](skills/ad-voiceover/SKILL.md): 广告配音制作：把广告词、宣传片解说稿按15、30、60秒目标时长自动算好语速配音，用你自己的克隆音色生成人声，叠加你的背景音乐并在说话时自动压低，一次出多个A/B版本，附字幕和报告。 (Ad Voiceover · Promo Video Voice · Music Ducking)
+- [视频翻译](skills/video-translation-dubbing/SKILL.md): 视频翻译工具：先把视频语音识别成字幕，生成原文译文对照表交给Agent翻译，再输出中英双语字幕、单语字幕，并可用你自己的克隆音色按原时间码配英文等外语，超时台词自动加速并逐句报告。 (Video Translation · Bilingual Subtitles · AI Dubbing)
 
 ## 共同用法
 
-- 官方客户端 scripts/miragea_audio.py：capabilities、actors、generate（--text/--text-file，--actor-id 或 --reference-audio-url + --reference-text，--model expressive|standard，--tag，--speed，--format，--wait，--output）、recognize（--file，--subtitle-format srt|txt|json）、task、wait
+- 官方客户端 scripts/miragea_audio.py（1.3.0）：capabilities、actors、create-actor、generate（--text/--text-file，--actor-id 或 --actor-name（服务端已不接受参考音频 URL），--model expressive|standard，--tag，--speed，--format，--wait，--output）、recognize（--file，--subtitle-format srt|txt|json）、task、wait
 - 稿件拼接层 scripts/voiceover.py：check（离线）、script（--preset koubo/jieshuo/daihuo/shuziren/guanggao/youshengshu、--gap、--max-chars、--speaker-labels、--model、--fresh、--dry-run、-o）
-- 稿件：Markdown，front matter 定义角色（actor_id= 或 ref= + ref_text=，可加 speed=、model=、tags=、language=），正文 [角色] 台词，[pause 秒] 停顿
+- 稿件：Markdown，front matter 定义角色（voice=角色名称 或 actor_id=，可加 speed=、model=、tags=、language=），正文 [角色] 台词，[pause 秒] 停顿
 - 输出：voiceover.wav、voiceover.srt、manifest.json、lines/（每句缓存）
 - 环境变量：MIRAGEA_API_KEY（https://miragea.ai/workspace/api 生成），可选 MIRAGEA_BASE_URL（默认 https://miragea.ai/v1）
 

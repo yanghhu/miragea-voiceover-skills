@@ -2,9 +2,9 @@
 
 **AI Voiceover · Text to Speech (TTS) · Voice Cloning · Subtitle Generator — open-source Agent Skills (`SKILL.md`) powered by the official [Miragea](https://miragea.ai) API.**
 
-开源 Agent 技能合集（SKILL.md 格式）：一份文字稿，一条命令生成 **AI配音 WAV + 带时间轴的 SRT 字幕 + 逐句时间 manifest.json**。音色可用 Miragea 账号里已有的角色，也可以用一段参考音频做声音克隆；已有的视频或音频也能自动识别生成 SRT / TXT / JSON 字幕。所有技能都随附 Miragea 官方客户端 `miragea_audio.py`，本地只需 Python 3.9+ 标准库，无需显卡。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy 等任何能运行 Python 的 Agent。
+开源 Agent 技能合集（SKILL.md 格式）：一份文字稿，一条命令生成 **AI配音 WAV + 带时间轴的 SRT 字幕 + 逐句时间 manifest.json**。音色用 Miragea 账号里的角色（可用本人或已获授权的 3–60 秒录音创建私有角色，即声音克隆）；已有的视频或音频也能自动识别生成 SRT / TXT / JSON 字幕。所有技能都随附 Miragea 官方客户端 `miragea_audio.py`，本地只需 Python 3.9+ 标准库，无需显卡。适用于 Claude Code、Codex、OpenClaw、Cursor、WorkBuddy 等任何能运行 Python 的 Agent。
 
-Script in, multi-voice voiceover WAV + timed SRT subtitles + per-line timing JSON out. Use saved voices from your Miragea account or clone a voice from a reference clip, and turn existing video/audio into SRT, TXT or JSON subtitles. Every skill ships the official Miragea client (`miragea_audio.py`) and needs only the Python 3.9+ standard library — no GPU. Works with Claude Code, Codex, OpenClaw, Cursor, WorkBuddy and any agent that can run Python.
+Script in, multi-voice voiceover WAV + timed SRT subtitles + per-line timing JSON out. Use roles in your Miragea account (create a private role from your own 3–60 s recording to clone your voice), and turn existing video/audio into SRT, TXT or JSON subtitles. Every skill ships the official Miragea client (`miragea_audio.py`) and needs only the Python 3.9+ standard library — no GPU. Works with Claude Code, Codex, OpenClaw, Cursor, WorkBuddy and any agent that can run Python.
 
 ## 技能列表 · Skills
 
@@ -20,8 +20,17 @@ Script in, multi-voice voiceover WAV + timed SRT subtitles + per-line timing JSO
 | [PPT配音｜课件配音·PPT转视频·AI旁白](https://github.com/yanghhu/miragea-voiceover-skills/tree/main/skills/ppt-voiceover-narration) | PPT Voiceover · Slide Narration with Subtitles | 课件/PPT逐页配音、整段旁白、每页时长、幻灯片视频 · Per-slide narration, timings, slideshow video | `skills/ppt-voiceover-narration` |
 | [AI播客｜播客配音·双人对谈·节目章节](https://github.com/yanghhu/miragea-voiceover-skills/tree/main/skills/ai-podcast-voiceover) | AI Podcast · Solo or Two-Host Episode Voiceover | 文章转播客、双人对谈、章节时间轴和文字稿 · Article-to-podcast, two hosts, chapters & transcript | `skills/ai-podcast-voiceover` |
 | [漫剧配音｜AI短剧配音·动画配音·多人配音](https://github.com/yanghhu/miragea-voiceover-skills/tree/main/skills/ai-drama-dubbing) | AI Comic & Short Drama Dubbing · Multi-Voice · Stems + SRT | AI漫剧、短剧、动画对白：选角表、逐句情绪、按分镜/SRT 时间码对轨、每角色分轨 · Role casting, per-line emotion, time-code locking, per-role stems | `skills/ai-drama-dubbing` |
+| [视频文案提取｜视频转文字·音频转文案·改写重配音](https://github.com/yanghhu/miragea-voiceover-skills/tree/main/skills/video-script-extract) | Video Script Extract · Speech to Text · Rewrite and Re-voice | 视频转文字、文案提取、改写后重配音 · Video/audio to script, rewrite and re-voice | `skills/video-script-extract` |
+| [AI有声书｜有声书制作·小说转有声书·分章节配音](https://github.com/yanghhu/miragea-voiceover-skills/tree/main/skills/ai-audiobook-maker) | AI Audiobook Maker · Novel to Audiobook · Chapter Audio | 整本小说转有声书：章节识别、逐章文件、播放列表、断点续跑 · Chapter-by-chapter audiobooks | `skills/ai-audiobook-maker` |
+| [叫卖录音｜地摊叫卖·喊话录音·店铺促销广播](https://github.com/yanghhu/miragea-voiceover-skills/tree/main/skills/jiaomai-shout-recording) | Hawker Shout Recording · Stall Calls · Shop Announcements | 地摊叫卖、店铺促销广播，循环到指定分钟 · Looping stall calls and shop announcements | `skills/jiaomai-shout-recording` |
+| [彩铃制作｜企业彩铃·IVR语音导航·电话提示音](https://github.com/yanghhu/miragea-voiceover-skills/tree/main/skills/ringback-ivr-prompts) | Ringback Tone Maker · IVR Phone Menu · Call Prompts | 企业彩铃、IVR 语音导航，电话格式导出 · Ringback tones and IVR prompts in phone formats | `skills/ringback-ivr-prompts` |
+| [听写音频｜单词听写·英语单词朗读·词语听写](https://github.com/yanghhu/miragea-voiceover-skills/tree/main/skills/dictation-audio) | Dictation Audio · English Words · Chinese Words | 单词 / 词语听写：编号、重复、书写停顿、答案 · Dictation audio with numbering, repeats and pauses | `skills/dictation-audio` |
+| [游戏配音｜批量配音·NPC台词语音包·游戏语音](https://github.com/yanghhu/miragea-voiceover-skills/tree/main/skills/game-voice-pack) | Game Voice Pack · Batch Voiceover · NPC Lines | 游戏台词 CSV → 按 id 命名的分角色语音包 · Game line CSV to per-id voice files | `skills/game-voice-pack` |
+| [冥想引导｜助眠音频·睡前放松·引导语配音](https://github.com/yanghhu/miragea-voiceover-skills/tree/main/skills/meditation-sleep-guide) | Meditation Guide · Sleep Audio · Relaxation | 冥想 / 助眠引导语，按目标分钟数排布长停顿 · Guided meditation timed to N minutes | `skills/meditation-sleep-guide` |
+| [广告配音｜宣传片配音·配音加背景音乐·AI配音](https://github.com/yanghhu/miragea-voiceover-skills/tree/main/skills/ad-voiceover) | Ad Voiceover · Promo Video Voice · Music Ducking | 广告、宣传片配音：按 15/30/60 秒卡时长、背景音乐自动压低、A/B 多版本 · Timed ad voiceover with music ducking | `skills/ad-voiceover` |
+| [视频翻译｜双语字幕·英文配音·字幕翻译](https://github.com/yanghhu/miragea-voiceover-skills/tree/main/skills/video-translation-dubbing) | Video Translation · Bilingual Subtitles · AI Dubbing | 视频翻译：识别字幕 → Agent 翻译对照表 → 中英双语字幕 → 按原时间码配外语 · Bilingual subtitles and AI dubbing | `skills/video-translation-dubbing` |
 
-每个技能文件夹都包含 `SKILL.md`（完整用法、写稿方法、FAQ）、`README.md`、`examples/` 示例稿和 `scripts/`（`voiceover.py` 拼接层 + `miragea_audio.py` 官方客户端）。
+每个技能文件夹都包含 `SKILL.md`（完整用法、写稿方法、FAQ）、`README.md`、`examples/` 示例和 `scripts/`（技能主脚本 + `miragea_audio.py` 官方客户端）；新技能还带 `assets/` 封面和流程图。
 
 Each folder contains `SKILL.md` (full usage, scripting guide, FAQ), `README.md`, an example script under `examples/`, and `scripts/` (`voiceover.py` + the official `miragea_audio.py` client).
 
