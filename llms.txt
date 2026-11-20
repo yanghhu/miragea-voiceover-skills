@@ -1,6 +1,6 @@
 # Miragea AI 配音与字幕技能合集 (miragea-voiceover-skills)
 
-> 19 个 Agent Skills（SKILL.md 格式）：AI配音、口播配音、电影解说配音、文字转语音、声音克隆、字幕生成、小说推文配音、PPT配音、AI播客、漫剧配音、视频文案提取、AI有声书、叫卖录音、彩铃制作、听写音频、游戏配音、冥想引导、广告配音、视频翻译。文字稿逐句调用 Miragea 官方客户端生成配音，本地拼成整段 WAV，并输出带时间轴的 SRT 字幕和逐句 manifest.json；音色用账号里的角色（可用本人录音创建私有角色）；已有音视频可识别为 SRT / TXT / JSON。本地只需 Python 3.9+ 标准库、无需显卡；单句字数、限额和计费以 capabilities 实时返回为准。服务：Miragea 开放 API（https://miragea.ai/v1）。
+> 20 个 Agent Skills（SKILL.md 格式）：AI配音、口播配音、电影解说配音、文字转语音、声音克隆、字幕生成、小说推文配音、PPT配音、AI播客、漫剧配音、视频文案提取、AI有声书、叫卖录音、彩铃制作、听写音频、游戏配音、冥想引导、广告配音、视频翻译、睡前故事。文字稿逐句调用 Miragea 官方客户端生成配音，本地拼成整段 WAV，并输出带时间轴的 SRT 字幕和逐句 manifest.json；音色用账号里的角色（可用本人录音创建私有角色）；已有音视频可识别为 SRT / TXT / JSON。本地只需 Python 3.9+ 标准库、无需显卡；单句字数、限额和计费以 capabilities 实时返回为准。服务：Miragea 开放 API（https://miragea.ai/v1）。
 
 AI voiceover & subtitle skills for agents: script in, multi-voice voiceover WAV + timed SRT + per-line timing JSON out, via the official Miragea client (generate / recognize). Roles in your account (create a private role from your own recording); speech-to-subtitles for existing media. No GPU.
 
@@ -24,6 +24,7 @@ AI voiceover & subtitle skills for agents: script in, multi-voice voiceover WAV 
 - [游戏配音](skills/game-voice-pack/SKILL.md): 游戏配音批量生成：把NPC台词写成CSV表格，每行一个编号和角色，按角色套用你的克隆音色，自动输出按编号命名的、分角色文件夹的语音文件和清单，改一行只重配一行，也可离线试跑。 (Game Voice Pack · Batch Voiceover · NPC Lines)
 - [冥想引导](skills/meditation-sleep-guide/SKILL.md): 冥想引导音频制作：把引导语稿子配成慢语速语音，自动按目标分钟数分配段间长停顿，也可写固定停顿，用你自己的克隆音色输出音频、字幕和时间表，改一段只重配一段，无需显卡可离线试跑。 (Meditation Guide · Sleep Audio · Relaxation)
 - [广告配音](skills/ad-voiceover/SKILL.md): 广告配音制作：把广告词、宣传片解说稿按15、30、60秒目标时长自动算好语速配音，用你自己的克隆音色生成人声，叠加你的背景音乐并在说话时自动压低，一次出多个A/B版本，附字幕和报告。 (Ad Voiceover · Promo Video Voice · Music Ducking)
+- [睡前故事](skills/bedtime-story-picture-book/SKILL.md): 睡前故事配音工具：把按页写好的绘本、儿童故事文本，用你自己的克隆音色配成整本故事音频，旁白和角色可分配不同角色，每页单独出音频，页间自动加翻页提示音，附字幕和每页的时长表。 (Bedtime Story · Picture Book Voiceover · Kids Audio)
 - [视频翻译](skills/video-translation-dubbing/SKILL.md): 视频翻译工具：先把视频语音识别成字幕，生成原文译文对照表交给Agent翻译，再输出中英双语字幕、单语字幕，并可用你自己的克隆音色按原时间码配英文等外语，超时台词自动加速并逐句报告。 (Video Translation · Bilingual Subtitles · AI Dubbing)
 
 ## 共同用法
